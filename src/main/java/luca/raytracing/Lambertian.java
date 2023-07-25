@@ -21,6 +21,7 @@ public class Lambertian implements Material {
         return this.albedo;
     }
     @Override public Point3D samplePDF(Direction outgoing, Basis basis, Random random) {
+
         double u1 = random.nextDouble();
         double u2 = random.nextDouble();
 
@@ -29,12 +30,34 @@ public class Lambertian implements Material {
 
         double phi = 2 * Math.PI * u2;
 
+        double x = sinTheta * Math.cos(phi);
+        double z = sinTheta * Math.sin(phi);
         Point3D dir = new Point3D(
                 sinTheta * Math.cos(phi),
-                cosTheta,
+                Math.sqrt(1.0 - x * x - z * z),
                 sinTheta * Math.sin(phi));
-        return basis.getTransform().MultiplyPoint3D(dir).normalize();
+
+        /*
+        double u = random.nextDouble();
+        double v = random.nextDouble();
+        double theta = u * 2.0 * Math.PI;
+        double phi = Math.acos(2.0 * v - 1.0);
+        double r = Math.cbrt(random.nextDouble());
+        double sinTheta = Math.sin(theta);
+        double cosTheta = Math.cos(theta);
+        double sinPhi = Math.sin(phi);
+        double cosPhi = Math.cos(phi);
+        Point3D dir = new Point3D(
+                r * sinPhi * cosTheta,
+                r * sinPhi * sinTheta,
+                Math.abs(r * cosPhi)
+        );
+        */
+        return (basis.getTransform().MultiplyPoint3D(dir)).normalize();
+
+
     }
+
     @Override public Point3D BRDF() {
         return albedo.multiply(1 / Math.PI);
     }
