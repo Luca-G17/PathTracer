@@ -1,8 +1,11 @@
 package luca.raytracing;
 
 import javafx.application.Application;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -20,10 +23,9 @@ public class App extends Application {
     // OBJECTS:
     // each object needs a material which has an emittance and a reflectance prop
 
-
     @Override public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("MainWindow.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1200, 1000);
+        Scene scene = new Scene(fxmlLoader.load(), 1000, 800);
         stage.setTitle("Ray Tracer");
         stage.setScene(scene);
         stage.show();

@@ -9,7 +9,7 @@ public class RayTracer {
     // Compute intersection point between plane and ray
     // Compute if ray intersects inside polygon
     // the closest intersection returned
-    private final int maxDepth = 10;
+    private final int maxDepth = 2;
     private final Random random;
     private final List<WorldObject> world;
     private final List<Light> lights;
@@ -50,38 +50,40 @@ public class RayTracer {
         return true;
     }
     public Point3D traceRay(Ray ray) {
-        Point3D weights = new Point3D(1, 1, 1);
+        Point3D throughput = new Point3D(1, 1, 1);
         Point3D total = Point3D.ZERO;
         for (int bounce = 0; bounce < maxDepth; bounce++) {
             Optional<Collision> optCol = rayCollision(ray);
             if (optCol.isEmpty()) break;
             Collision col = optCol.get();
 
+            // Compute outgoing ray direction
             Basis basis = new Basis(col.polygon.getNormal());
             Direction outgoing = new Direction(ray.getDirection().multiply(-1), basis);
+
+            // Apply emittance
             Material mat = col.hit.getMat();
+            total = total.add(vectorMultiply(throughput, mat.emittance(outgoing, basis)));
 
-            total = total.add(vectorMultiply(weights, mat.emittance(outgoing, basis)));
-
+            Point3D weight = mat.weightPDF(outgoing, basis);
+            throughput = vectorMultiply(throughput, weight);
             for (Light light : lights) {
                 Point3D colToLight = light.getPosition().subtract(col.point);
                 double dist = colToLight.magnitude();
                 if (occlude(new Ray(col.point, colToLight), light)) {
                     Direction incoming = new Direction(colToLight.normalize(), basis);
-                    total = total.add(vectorMultiply(weights, mat.BRDF())).multiply(incoming.getCosTheta() * light.getIntensity() / (dist * dist));
+                    // total += weights * BRDF * incomingCosTheta * lightIntensity / distance^2
+                    total = total.add(vectorMultiply(throughput, mat.BRDF())).multiply(incoming.getCosTheta() * light.getIntensity() / (dist * dist));
                 }
             }
 
-            Point3D weight = mat.weightPDF(outgoing, basis);
             double p = Math.max(weight.getX(), Math.max(weight.getY(), weight.getZ()));
             if (bounce > 2) {
                 if (random.nextDouble() <= p)
-                    weight = weight.multiply(1 / p);
+                    throughput = weight.multiply(1 / p);
                 else
                     break;
             }
-
-            weights = vectorMultiply(weights, weight);
             Point3D newDir = mat.samplePDF(outgoing, basis, random);
             ray = new Ray(col.point(), newDir);
         }
