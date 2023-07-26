@@ -34,7 +34,7 @@ public class Controller {
             "PURPLE", new Lambertian(new Point3D(0.75f, 0.25f, 0.25f)),
             "BLUE", new Lambertian(new Point3D(0.25f, 0.25f, 0.75f)),
             "MIRROR", new Mirror(new Point3D(1f, 1f, 1f), Point3D.ZERO),
-            "WHITE-EMITTER", new Lambertian(new Point3D(0.75f, 0.75f, 0.75f), new Point3D(1f, 1f, 1f))
+            "WHITE-EMITTER", new Lambertian(new Point3D(0.75f, 0.75f, 0.75f), new Point3D(3f, 3f, 3f))
     );
 
     public Controller() {
@@ -85,6 +85,15 @@ public class Controller {
         pointAverage = prevAverage.add((newCol.subtract(prevAverage)).multiply(1.0 / n));
         return new Color(Math.min(pointAverage.getX(), 1) , Math.min(pointAverage.getY(), 1), Math.min(pointAverage.getZ(), 1), 1);
     }
+    public Color[][] initBitmap(int height, int width) {
+        Color[][] b = new Color[height][width];
+        for (int i = 0; i < height; i++) {
+            for (int f = 0; f < width; f++) {
+                b[i][f] = new Color(0, 0, 0, 1);
+            }
+        }
+        return b;
+    }
 
     public void startTracing() throws InterruptedException {
         double uScale = 1;
@@ -98,7 +107,7 @@ public class Controller {
         double finalVScale = vScale;
 
         // Spin up n threads, wait all threads compute a single round of the bitmap
-        Color[][] bitmap = new Color[HEIGHT][WIDTH];
+        Color[][] bitmap = initBitmap(HEIGHT, WIDTH);
         for (int s = 0; s < SAMPLES; s++) {
             // Each thread computes a row
             int finalS = s;
@@ -109,12 +118,16 @@ public class Controller {
                     u *= finalUScale;
                     v *= finalVScale;
                     Ray ray = camera.transformRay(u, v);
-                    Point3D color = tracer.traceRay(ray);
-                    bitmap[y][x] = rollingColorAverage(color, bitmap[y][x], finalS);
+                    //Point3D color = tracer.traceRay(ray);
+                    Point3D color = tracer.traceRayRecursive(ray, 0);
+                    if (color.equals(Point3D.ZERO))
+                        continue;
+                    Color average = rollingColorAverage(color, bitmap[y][x], finalS);
+                    bitmap[y][x] = average;
                 }
             });
             // Display bitmap
-            if (s % 5 == 0) {
+            if (s % 3 == 0) {
                 updateCanvas(WIDTH, HEIGHT, bitmap);
             }
         }

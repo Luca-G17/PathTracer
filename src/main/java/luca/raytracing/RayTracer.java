@@ -9,7 +9,7 @@ public class RayTracer {
     // Compute intersection point between plane and ray
     // Compute if ray intersects inside polygon
     // the closest intersection returned
-    private final int maxDepth = 2;
+    private final int maxDepth = 5;
     private final List<WorldObject> world;
     private final List<Light> lights;
     RayTracer(List<WorldObject> world, List<Light> lights) {
@@ -47,12 +47,41 @@ public class RayTracer {
         }
         return true;
     }
+
+    public Point3D traceRayRecursive(Ray ray, int depth) {
+        Optional<Collision> optCol = rayCollision(ray);
+        if (depth > maxDepth) {
+            return Point3D.ZERO;
+        }
+        if (optCol.isEmpty()) {
+            return new Point3D(0.7, 0.8, 1.0);
+        }
+        Collision col = optCol.get();
+
+        Basis basis = new Basis(col.polygon.getNormal());
+        Direction outgoing = new Direction(ray.getDirection().multiply(-1), basis);
+
+        Material mat = col.hit.getMat();
+        Point3D throughput = mat.weightPDF(outgoing, basis);
+
+        if (mat.emittance(outgoing, basis).magnitude() != 0) { // i.e its a light
+            return mat.emittance(outgoing, basis);
+        }
+
+        Point3D newDir = mat.samplePDF(outgoing, basis);
+        ray = new Ray(col.point(), newDir);
+        return mat.emittance(outgoing, basis).add(vectorMultiply(throughput, traceRayRecursive(ray, depth + 1)));
+    }
     public Point3D traceRay(Ray ray) {
+        Point3D background = new Point3D(0.7, 0.8, 1.0);
         Point3D throughput = new Point3D(1, 1, 1);
         Point3D total = Point3D.ZERO;
         for (int bounce = 0; bounce < maxDepth; bounce++) {
             Optional<Collision> optCol = rayCollision(ray);
-            if (optCol.isEmpty()) break;
+            if (optCol.isEmpty()) {
+                total = background;
+                break;
+            }
             Collision col = optCol.get();
 
             // Compute outgoing ray direction

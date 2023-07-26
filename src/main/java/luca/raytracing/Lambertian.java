@@ -21,7 +21,7 @@ public class Lambertian implements Material {
         return this.albedo;
     }
     @Override public Point3D samplePDF(Direction outgoing, Basis basis) {
-        Random rand = new Random();
+        Random rand = new Random(System.nanoTime());
         double u1 = rand.nextDouble();
         double u2 = rand.nextDouble();
 
