@@ -16,7 +16,7 @@ public class Mirror implements Material {
         return this.reflection;
     }
 
-    @Override public Point3D samplePDF(Direction outgoing, Basis basis, Random random) {
+    @Override public Point3D samplePDF(Direction outgoing, Basis basis) {
         return (basis.getNormal().multiply(2).multiply(outgoing.getCosTheta())).subtract(outgoing.getVector());
     }
 

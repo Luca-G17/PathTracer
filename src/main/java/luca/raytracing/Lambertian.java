@@ -20,10 +20,10 @@ public class Lambertian implements Material {
     @Override public Point3D weightPDF(Direction outgoing, Basis basis) {
         return this.albedo;
     }
-    @Override public Point3D samplePDF(Direction outgoing, Basis basis, Random random) {
-
-        double u1 = random.nextDouble();
-        double u2 = random.nextDouble();
+    @Override public Point3D samplePDF(Direction outgoing, Basis basis) {
+        Random rand = new Random();
+        double u1 = rand.nextDouble();
+        double u2 = rand.nextDouble();
 
         double sinTheta = Math.sqrt(u1);
         double cosTheta = Math.sqrt(1 - u1);
@@ -54,8 +54,6 @@ public class Lambertian implements Material {
         );
         */
         return (basis.getTransform().MultiplyPoint3D(dir)).normalize();
-
-
     }
 
     @Override public Point3D BRDF() {

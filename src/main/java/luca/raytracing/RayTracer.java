@@ -10,13 +10,11 @@ public class RayTracer {
     // Compute if ray intersects inside polygon
     // the closest intersection returned
     private final int maxDepth = 2;
-    private final Random random;
     private final List<WorldObject> world;
     private final List<Light> lights;
     RayTracer(List<WorldObject> world, List<Light> lights) {
         this.world = world;
         this.lights = lights;
-        random = new Random();
     }
 
     private record Collision(Point3D point, WorldObject hit, Polygon polygon) {}
@@ -30,7 +28,7 @@ public class RayTracer {
 
                 // double d = ray.getDirection().dotProduct(ray.getOrigin());
                 Point3D originToLoc = loc.subtract(ray.getOrigin());
-                if (ray.getDirection().dotProduct(originToLoc) > 0){
+                if (ray.getDirection().dotProduct(originToLoc) > 0) {
                     if (p.rayIsInPolygon(loc))
                         collisions.add(new Collision(loc, obj, p));
                 }
@@ -77,14 +75,15 @@ public class RayTracer {
                 }
             }
 
+            Random rand = new Random();
             double p = Math.max(weight.getX(), Math.max(weight.getY(), weight.getZ()));
             if (bounce > 2) {
-                if (random.nextDouble() <= p)
+                if (rand.nextDouble() <= p)
                     throughput = weight.multiply(1 / p);
                 else
                     break;
             }
-            Point3D newDir = mat.samplePDF(outgoing, basis, random);
+            Point3D newDir = mat.samplePDF(outgoing, basis);
             ray = new Ray(col.point(), newDir);
         }
         return total;

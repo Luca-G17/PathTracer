@@ -6,8 +6,12 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.canvas.Canvas?>
-<VBox fx:id="box" alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="luca.raytracing.Controller" minHeight="800" minWidth="1000">
-    <Canvas fx:id="canvas" height="800" width="1000" >
-    </Canvas>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.layout.StackPane?>
+<VBox fx:id="box" alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml" minHeight="820" minWidth="1000">
+        <StackPane>
+                <Text fx:id="mousePos" translateY="-390">Placeholder</Text>
+                <Canvas fx:id="canvas" translateY="20" height="800" width="1000" >
+                </Canvas>
+        </StackPane>
 </VBox>
