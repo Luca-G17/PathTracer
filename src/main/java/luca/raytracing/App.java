@@ -1,14 +1,20 @@
 package luca.raytracing;
 
 import javafx.application.Application;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+
+import static javafx.scene.input.KeyEvent.KEY_TYPED;
 
 public class App extends Application {
     // RAYS:
@@ -23,12 +29,29 @@ public class App extends Application {
     // OBJECTS:
     // each object needs a material which has an emittance and a reflectance prop
 
-    @Override public void start(Stage stage) throws IOException {
+    @Override public void start(Stage stage) throws IOException, InterruptedException {
+
+
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("MainWindow.fxml"));
+        Controller controller = new Controller();
+        fxmlLoader.setController(controller);
         Scene scene = new Scene(fxmlLoader.load(), 1000, 800);
         stage.setTitle("Ray Tracer");
         stage.setScene(scene);
         stage.show();
+        EventHandler<KeyEvent> keyEvent = keyEvent1 -> {
+            if (keyEvent1.getCharacter().equals(" ")) {
+                new Thread(() -> {
+                    try {
+                        controller.startTracing();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).start();
+            }
+        };
+
+        stage.addEventHandler(KEY_TYPED, keyEvent);
     }
     public static void main(String[] args) {
         launch();
