@@ -25,6 +25,18 @@ public class Lambertian implements Material {
         double u1 = rand.nextDouble();
         double u2 = rand.nextDouble();
 
+        double theta = Math.acos(2 * u1 - 1) - (Math.PI / 2);
+        double phi = 2 * Math.PI * u2;
+
+        double x = Math.cos(theta) * Math.cos(phi);
+        double y = Math.cos(theta) * Math.sin(phi);
+        double z = Math.sin(theta);
+        Point3D dir = new Point3D(
+                x,
+                Math.abs(y),
+                z
+        );
+        /*
         double sinTheta = Math.sqrt(u1);
         double cosTheta = Math.sqrt(1 - u1);
 
@@ -36,7 +48,7 @@ public class Lambertian implements Material {
                 sinTheta * Math.cos(phi),
                 Math.sqrt(1.0 - x * x - z * z),
                 sinTheta * Math.sin(phi));
-
+        */
         /*
         double u = random.nextDouble();
         double v = random.nextDouble();
