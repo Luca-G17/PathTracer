@@ -54,7 +54,7 @@ public class RayTracer {
             return Point3D.ZERO;
         }
         if (optCol.isEmpty()) {
-            return Point3D.ZERO;
+            return new Point3D(0.1f, 0.1f, 0.1f);
         }
         Collision col = optCol.get();
 

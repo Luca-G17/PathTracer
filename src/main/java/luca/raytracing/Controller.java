@@ -30,8 +30,8 @@ public class Controller {
 
     private static Map<String, Material> materials = Map.of(
             "WHITE", new Lambertian(new Point3D(0.75f, 0.75f, 0.75f)),
-            "YELLOW", new Lambertian(new Point3D(0.75f, 0.75f, 0.25f)),
-            "PURPLE", new Lambertian(new Point3D(0.75f, 0.25f, 0.25f)),
+            "GREEN", new Lambertian(new Point3D(0.0f, 0.75f, 0.0f)),
+            "RED", new Lambertian(new Point3D(0.75f, 0.25f, 0.25f)),
             "BLUE", new Lambertian(new Point3D(0.25f, 0.25f, 0.75f)),
             "MIRROR", new Mirror(new Point3D(1f, 1f, 1f), Point3D.ZERO),
             "WHITE-EMITTER", new Lambertian(new Point3D(0.75f, 0.75f, 0.75f), new Point3D(2f, 2f, 2f))
@@ -40,22 +40,22 @@ public class Controller {
     public Controller() {
         // Create world here
         List<WorldObject> world = new ArrayList<>();
-        world.add(new Plane(materials.get("YELLOW"), 100, 0, 0, new Point3D(-20, -2, -20)));
-        world.add(new Plane(materials.get("PURPLE"), 100, -Math.PI / 2, 0, new Point3D(-20, -3, 14)));
+        world.add(new Plane(materials.get("WHITE"), 100, 0, 0, new Point3D(-20, -2, -20)));
+        world.add(new Plane(materials.get("RED"), 100, -Math.PI / 2, 0, new Point3D(-20, -3, 14)));
         world.add(new Plane(materials.get("BLUE"), 100, 0, -Math.PI / 2, new Point3D(-4, 97, -20)));
-        world.add(new Plane(materials.get("PURPLE"), 100, 0, Math.PI / 2, new Point3D(5, -3, -20)));
-        world.add(new Plane(materials.get("WHITE"), 100, Math.PI / 2, 0, new Point3D(-20, 97, -20)));
+        world.add(new Plane(materials.get("WHITE-EMITTER"), 100, 0, Math.PI / 2, new Point3D(5, -3, -20)));
+        world.add(new Plane(materials.get("WHITE"), 100, Math.PI / 2, 0, new Point3D(-20, 40, -3)));
+        world.add(new Plane(materials.get("WHITE"), 100, Math.PI, 0, new Point3D(-20, 10, 20)));
 
-        world.add(new Cube(materials.get("WHITE"), 3, new Point3D(0, 2, 10), new Point3D(0, Math.PI / 8, 0))); // Mirror Cube
+        world.add(new Cube(materials.get("GREEN"), 3, new Point3D(0, 2, 10), new Point3D(0, Math.PI / 8, 0))); // Mirror Cube
         world.add(new Cube(materials.get("WHITE"), 1, new Point3D(-1, -1, 5), new Point3D(0, 0, 0)));
-        world.add(new Cube(materials.get("WHITE-EMITTER"), 1, new Point3D(-2, 3, 4), new Point3D(0, 0, 0)));
-
+        //Cube light = new Cube(materials.get("WHITE-EMITTER"), 1, new Point3D(-2, 3, 4), new Point3D(0, 0, 0));
         List<Light> lights = new ArrayList<>();
         // lights.add(new Light(new Point3D(0, 6, 10), 50.0));
         // lights.add(new Light(new Point3D(0, 6, 4), 110.0));
 
 
-        this.camera = new Camera(new Point3D(0, 3, 1), -25 * Math.PI / 180, 0 * Math.PI / 180, 80 * Math.PI / 180);
+        this.camera = new Camera(new Point3D(0, 3, 1), -10 * Math.PI / 180, 0 * Math.PI / 180, 80 * Math.PI / 180);
         tracer = new RayTracer(world, lights);
     }
 
@@ -70,7 +70,8 @@ public class Controller {
     public void updateCanvas(int width, int height, Color[][] bitmap) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                canvas.getGraphicsContext2D().getPixelWriter().setColor(x, y, bitmap[y][x]);
+                Color c = new Color(bitmap[y][x].getRed(), bitmap[y][x].getGreen(), bitmap[y][x].getBlue(), 1);
+                canvas.getGraphicsContext2D().getPixelWriter().setColor(x, y, c);
             }
         }
     }
@@ -111,7 +112,6 @@ public class Controller {
         for (int s = 0; s < SAMPLES; s++) {
             // Each thread computes a row
             int finalS = s;
-            Random rand = new Random();
             IntStream.range(0, HEIGHT).parallel().forEach(y -> {
                 for (int x = 0; x < WIDTH; x++) {
                     double u = 2 * (((double)x + 0.5) / (WIDTH - 1)) - 1;
@@ -121,18 +121,9 @@ public class Controller {
                     Ray ray = camera.transformRay(u, v);
                     //Point3D color = tracer.traceRay(ray);
                     Point3D color = tracer.traceRayRecursive(ray, 0);
-                    if (color.equals(Point3D.ZERO)) {
-                        if (x == 500 && y == 500) {
-                            System.out.printf("(500,500) - Sample: %d, ZERO\n", finalS);
-                        }
-                        continue;
-                    }
                     synchronized (mutex) {
                         Color average = rollingColorAverage(color, bitmap[y][x], finalS);
                         bitmap[y][x] = average;
-                    }
-                    if (x == 500 && y == 500) {
-                        System.out.printf("(500,500) - Sample: %d, RGB(%f, %f, %f, %f)\n", finalS, bitmap[y][x].getRed(), bitmap[y][x].getGreen(), bitmap[y][x].getBlue(), bitmap[y][x].getOpacity());
                     }
                 }
             });
