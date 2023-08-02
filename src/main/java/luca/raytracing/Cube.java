@@ -49,7 +49,7 @@ public class Cube extends WorldObject {
         translate(pos);
         flipEdgeNormal("Back");
         flipEdgeNormal("Right");
-        flipEdgeNormal("Bottom");
+        flipEdgeNormal("Top");
     }
     private void flipEdgeNormal(String id) {
         for (Polygon p : mesh) {

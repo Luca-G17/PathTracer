@@ -39,11 +39,11 @@ public class Controller {
         world.add(new Plane(materials.get("WHITE"), 100, 0, 0, new Point3D(-20, -2, -20)));
         world.add(new Plane(materials.get("RED"), 100, -Math.PI / 2, 0, new Point3D(-20, -3, 14)));
         world.add(new Plane(materials.get("BLUE"), 100, 0, -Math.PI / 2, new Point3D(-4, 97, -20)));
-        world.add(new Plane(materials.get("WHITE-EMITTER"), 100, 0, Math.PI / 2, new Point3D(5, -3, -20)));
+        world.add(new Plane(materials.get("WHITE"), 100, 0, Math.PI / 2, new Point3D(5, -3, -20)));
         world.add(new Plane(materials.get("WHITE"), 100, Math.PI / 2, 0, new Point3D(-20, 40, -3)));
         world.add(new Plane(materials.get("WHITE"), 100, Math.PI, 0, new Point3D(-20, 10, 20)));
 
-        world.add(new Cube(materials.get("GREEN"), 3, new Point3D(0, 2, 10), new Point3D(0, Math.PI / 8, 0))); // Mirror Cube
+        world.add(new Cube(materials.get("WHITE-EMITTER"), 3, new Point3D(0, 2, 10), new Point3D(0, Math.PI / 8, 0))); // Mirror Cube
         world.add(new Cube(materials.get("WHITE"), 1, new Point3D(-3, -1, 5), new Point3D(0, 0, 0)));
         //Cube light = new Cube(materials.get("WHITE-EMITTER"), 1, new Point3D(-2, 3, 4), new Point3D(0, 0, 0));
         List<Light> lights = new ArrayList<>();
