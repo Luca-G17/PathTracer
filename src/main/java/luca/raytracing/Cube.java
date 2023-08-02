@@ -37,9 +37,6 @@ public class Cube extends WorldObject {
         Polygon right = left.translate(new Point3D(height, 0, 0));
         Polygon bottom = top.translate(new Point3D(0, -height, 0));
         back.setId("Back"); right.setId("Right"); bottom.setId("Bottom");
-        right.flipNormal();
-        top.flipNormal();
-        back.flipNormal();
         this.mesh = new ArrayList<>(Arrays.asList(
                 front,
                 left,
@@ -50,6 +47,16 @@ public class Cube extends WorldObject {
         ));
         rotate(rot);
         translate(pos);
+        flipEdgeNormal("Back");
+        flipEdgeNormal("Right");
+        flipEdgeNormal("Bottom");
+    }
+    private void flipEdgeNormal(String id) {
+        for (Polygon p : mesh) {
+            if (p.getId().equals(id)) {
+                p.flipNormal();
+            }
+        }
     }
     private void translate(Point3D t) {
         this.mesh = getMesh().stream().map(p -> p.translate(t)).toList();

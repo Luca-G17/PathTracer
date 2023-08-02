@@ -1,29 +1,25 @@
 package luca.raytracing;
 
-import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Point3D;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Label;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
-
-import static javafx.scene.input.MouseEvent.MOUSE_MOVED;
 
 public class Controller {
     private final Camera camera;
     private final RayTracer tracer;
     private final int HEIGHT = 800;
     private final int WIDTH = 1000;
-    private final int SAMPLES = 2000;
+    private final int SAMPLES = 20000;
     @FXML public Canvas canvas;
     @FXML public Text mousePos;
     @FXML public VBox box;
@@ -48,14 +44,14 @@ public class Controller {
         world.add(new Plane(materials.get("WHITE"), 100, Math.PI, 0, new Point3D(-20, 10, 20)));
 
         world.add(new Cube(materials.get("GREEN"), 3, new Point3D(0, 2, 10), new Point3D(0, Math.PI / 8, 0))); // Mirror Cube
-        world.add(new Cube(materials.get("WHITE"), 1, new Point3D(-1, -1, 5), new Point3D(0, 0, 0)));
+        world.add(new Cube(materials.get("WHITE"), 1, new Point3D(-3, -1, 5), new Point3D(0, 0, 0)));
         //Cube light = new Cube(materials.get("WHITE-EMITTER"), 1, new Point3D(-2, 3, 4), new Point3D(0, 0, 0));
         List<Light> lights = new ArrayList<>();
         // lights.add(new Light(new Point3D(0, 6, 10), 50.0));
         // lights.add(new Light(new Point3D(0, 6, 4), 110.0));
 
 
-        this.camera = new Camera(new Point3D(0, 3, 1), -10 * Math.PI / 180, 0 * Math.PI / 180, 80 * Math.PI / 180);
+        this.camera = new Camera(new Point3D(1, 3, 1), -10 * Math.PI / 180, 10 * Math.PI / 180, 80 * Math.PI / 180);
         tracer = new RayTracer(world, lights);
     }
 
@@ -120,6 +116,9 @@ public class Controller {
                     v *= finalVScale;
                     Ray ray = camera.transformRay(u, v);
                     //Point3D color = tracer.traceRay(ray);
+                    if (x ==  327 && y == 729) {
+                        int poo = 34;
+                    }
                     Point3D color = tracer.traceRayRecursive(ray, 0);
                     synchronized (mutex) {
                         Color average = rollingColorAverage(color, bitmap[y][x], finalS);
@@ -128,7 +127,7 @@ public class Controller {
                 }
             });
             // Display bitmap
-            if (s % 1 == 0) {
+            if (s % 50 == 0) {
                 updateCanvas(WIDTH, HEIGHT, bitmap);
             }
         }

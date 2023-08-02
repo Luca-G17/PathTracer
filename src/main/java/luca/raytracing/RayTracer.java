@@ -69,8 +69,8 @@ public class RayTracer {
         }
 
         Point3D newDir = mat.samplePDF(outgoing, basis);
-        ray = new Ray(col.point().add(col.polygon.getNormal().multiply(0.001)), newDir);
-        return vectorMultiply(throughput, traceRayRecursive(ray, depth + 1));
+        Ray newRay = new Ray(col.point().add(col.polygon.getNormal().multiply(0.001)), newDir);
+        return vectorMultiply(throughput, traceRayRecursive(newRay, depth + 1));
     }
     public Point3D traceRay(Ray ray) {
         Point3D background = new Point3D(0.7, 0.8, 1.0);

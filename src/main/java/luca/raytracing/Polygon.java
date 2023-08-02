@@ -77,9 +77,9 @@ public class Polygon {
         return intersections % 2 != 0; // Odd = inside polygon
     }
     public Polygon translate(Point3D p) {
-        return new Polygon(lines.stream().map(x -> x.translate(p)).collect(Collectors.toList()));
+        return new Polygon(lines.stream().map(x -> x.translate(p)).collect(Collectors.toList()), this.id);
     }
     public Polygon rotate(Matrix r) {
-        return new Polygon(lines.stream().map(x -> x.rotate(r)).collect(Collectors.toList()));
+        return new Polygon(lines.stream().map(x -> x.rotate(r)).collect(Collectors.toList()), this.id);
     }
 }
