@@ -2,8 +2,6 @@ package luca.raytracing;
 
 import javafx.geometry.Point3D;
 
-import java.util.Random;
-
 public class Mirror implements Material {
     private final Point3D reflection;
     private final Point3D emittance;

@@ -1,11 +1,9 @@
 package luca.raytracing;
 
 import javafx.geometry.Point3D;
-import javafx.scene.effect.Light;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class Cube extends WorldObject {
     private final double height;

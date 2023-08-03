@@ -1,7 +1,6 @@
 package luca.raytracing;
 
 import javafx.geometry.Point3D;
-import javafx.scene.effect.Light;
 
 import java.util.List;
 

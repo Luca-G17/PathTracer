@@ -115,10 +115,6 @@ public class Controller {
                     u *= finalUScale;
                     v *= finalVScale;
                     Ray ray = camera.transformRay(u, v);
-                    //Point3D color = tracer.traceRay(ray);
-                    if (x ==  327 && y == 729) {
-                        int poo = 34;
-                    }
                     Point3D color = tracer.traceRayRecursive(ray, 0);
                     synchronized (mutex) {
                         Color average = rollingColorAverage(color, bitmap[y][x], finalS);

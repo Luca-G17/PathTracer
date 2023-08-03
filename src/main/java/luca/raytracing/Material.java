@@ -2,8 +2,6 @@ package luca.raytracing;
 
 import javafx.geometry.Point3D;
 
-import java.util.Random;
-
 public interface Material {
 
     Point3D weightPDF(Direction outgoing, Basis basis);

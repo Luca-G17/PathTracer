@@ -1,7 +1,6 @@
 package luca.raytracing;
 
 import javafx.geometry.Point3D;
-import javafx.scene.transform.MatrixType;
 
 public class Basis {
     private Matrix transform;
