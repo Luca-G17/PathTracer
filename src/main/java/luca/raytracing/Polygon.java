@@ -41,37 +41,28 @@ public class Polygon {
     public double vectorRatio(Point3D v1, Point3D v2) {
         return v1.magnitude() / v2.magnitude();
     }
+    public double length2(Point3D p) {
+        return p.dotProduct(p);
+    }
+
     public boolean rayIsInPolygon(Point3D loc) {
-        Line cast = new Line(loc, lines.get(0).getU(), 0);
+        Line cast = new Line(loc, lines.get(0).getU(), 100); // Change
         int intersections = 0;
         for (Line l : lines) {
-            Point3D g = l.getP0().subtract(cast.getP0());
-            Point3D h = l.getU().crossProduct(g);
-            Point3D k = l.getU().crossProduct(cast.getU());
-            if (!h.equals(Point3D.ZERO) && !k.equals(Point3D.ZERO)) {
-                double scalar = vectorRatio(h, k);
-                if (scalar != 0){
-                    Point3D scaledVector = cast.getU().multiply(scalar);
-                    Point3D intersection;
-                    // Checks if vectors are parallel or antiparallel
-                    // TODO: May have to change this
-                    if (h.getX() * k.getX() > 0 || h.getY() * k.getY() > 0 || h.getZ() * k.getZ() > 0){
-                        intersection = cast.getP0().add(scaledVector);
-                    }
-                    else {
-                        intersection = cast.getP0().subtract(scaledVector);
-                    }
-                    // Plane normal = castU
-                    // d = castU.CastP0
-                    // if castU.intersection - d > 0
-                    double d = cast.getU().dotProduct(cast.getP0());
-                    if (cast.getU().dotProduct(intersection) - d > 0){
-                        double distToP0 = (l.getP0().subtract(intersection)).magnitude();
-                        double distToP1 = (l.getP1().subtract(intersection)).magnitude();
-                        if (distToP0 + distToP1 <= l.getLength())
-                            intersections++;
-                    }
-                }
+            Point3D r = l.getP1().subtract(l.getP0()); //  l1 = p + tr
+            Point3D s = cast.getP1().subtract(cast.getP0()); // l2 = q + us
+            Point3D f = cast.getP0().subtract(l.getP0());
+            boolean areParallel = r.dotProduct(s) == 0.0;
+            boolean arePlanar = f.dotProduct(r.crossProduct(s)) != 0.0;
+            if (arePlanar && !areParallel) {
+                Point3D rXs = r.crossProduct(s);
+                double t = (f.crossProduct(s)).dotProduct(rXs) / length2(rXs);
+                double u = (f.crossProduct(r)).dotProduct(rXs) / length2(rXs);
+                if (t >= 0.0 && t <= 1.0 && u >= 0.0 && u < 1.0)
+                    intersections++;
+            }
+            else if (areParallel) {
+                // Check if they are the same line in that case
             }
         }
         return intersections % 2 != 0; // Odd = inside polygon
