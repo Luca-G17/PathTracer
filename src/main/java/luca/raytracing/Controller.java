@@ -56,7 +56,7 @@ public class Controller {
     }
 
     @FXML
-    public void initialize() throws InterruptedException {
+    public void initialize() {
         EventHandler<MouseEvent> mouseEvent = e -> {
             String coordsStr = String.format("Mouse Coords: (%d, %d)", Math.round(e.getX()), Math.round(e.getY()));
             mousePos.setText(coordsStr);
@@ -116,9 +116,6 @@ public class Controller {
                     v *= finalVScale;
                     Ray ray = camera.transformRay(u, v);
                     //Point3D color = tracer.traceRay(ray);
-                    if (x ==  327 && y == 729) {
-                        int poo = 34;
-                    }
                     Point3D color = tracer.traceRayRecursive(ray, 0);
                     synchronized (mutex) {
                         Color average = rollingColorAverage(color, bitmap[y][x], finalS);
