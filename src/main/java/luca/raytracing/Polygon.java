@@ -1,8 +1,10 @@
 package luca.raytracing;
 
 import javafx.geometry.Point3D;
+import javafx.scene.effect.Light.Point;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class Polygon {
@@ -45,24 +47,68 @@ public class Polygon {
         return p.dotProduct(p);
     }
 
+    private Point3D getRandomPointOnPolygon() {
+        Line l1 = lines.get(0);
+        Line l2 = lines.get(1);
+        Random rand = new Random();
+        double u = rand.nextDouble();
+        double v = rand.nextDouble();
+        return l1.getP0().add(l1.getU().multiply(u)).add(l2.getU().multiply(v));
+    }
+    private Point3D obliqueCast() {
+        boolean castValid = false;
+        Point3D v = new Point3D(1, 1, 1);
+        while (!castValid) {
+            castValid = true;
+            // pick two points on the plane built by the polygon
+            Point3D p1 = getRandomPointOnPolygon();
+            Point3D p2 = getRandomPointOnPolygon();
+            if (p1.equals(p2))
+                castValid = false;
+            // maybe add a check in case p1 == p2
+            v = p2.subtract(p1);
+            for (Line l : lines) {
+                if (v.dotProduct(l.getU()) == 0) {
+                    castValid = false;
+                }
+            }
+        }
+        return v;
+    }
+
+    private double perimeter() {
+        double total = 0;
+        for (Line l : lines) {
+            total += l.getLength();
+        }
+        return total;
+    }
+
     public boolean rayIsInPolygon(Point3D loc) {
-        Line cast = new Line(loc, lines.get(0).getU(), 100); // Change
+        for (Line l : lines) {
+            if (loc.equals(l.getP0())) { //TODO: Tolerances?
+                return true;
+            }
+        }
+        Point3D cDir = obliqueCast();
+        Line cast = new Line(loc, cDir, perimeter());
         int intersections = 0;
         for (Line l : lines) {
             Point3D r = l.getP1().subtract(l.getP0()); //  l1 = p + tr
             Point3D s = cast.getP1().subtract(cast.getP0()); // l2 = q + us
             Point3D f = cast.getP0().subtract(l.getP0());
             boolean areParallel = r.dotProduct(s) == 0.0;
-            boolean arePlanar = f.dotProduct(r.crossProduct(s)) != 0.0;
+            boolean arePlanar = f.dotProduct(r.crossProduct(s)) != 0.0; //TODO: Tolerances?
             if (arePlanar && !areParallel) {
                 Point3D rXs = r.crossProduct(s);
                 double t = (f.crossProduct(s)).dotProduct(rXs) / length2(rXs);
-                double u = (f.crossProduct(r)).dotProduct(rXs) / length2(rXs);
-                if (t >= 0.0 && t <= 1.0 && u >= 0.0 && u < 1.0)
+                if (t >= 0.0 && t <= 1.0) // If the intersection is in the segment
                     intersections++;
+                    // Need to add a check for if the cast hits a corner, or if the 'loc' == corner
             }
             else if (areParallel) {
-                // Check if they are the same line in that case
+                // Something has gone horribly wrong
+                assert(false);
             }
         }
         return intersections % 2 != 0; // Odd = inside polygon
