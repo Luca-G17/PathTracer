@@ -116,9 +116,17 @@ public class Polygon {
     }
 
      */
-
+    public boolean rayIsInPolygon(Point3D loc, boolean overload) {
+        // Convert loc to u, v coords
+        Basis basis = new Basis(lines.get(0).getU(), this.getNormal(), lines.get(1).getU());
+        Point3D locInBasis = basis.getTransform().MultiplyPoint3D(loc);
+        if (locInBasis.getX() <= 1 && locInBasis.getX() >= 0 && locInBasis.getZ() <= 1 && locInBasis.getZ() >= 0)
+            return true;
+        return false;
+    }
     public boolean rayIsInPolygon(Point3D loc) {
-        Line cast = new Line(loc, lines.get(0).getU(), 0);
+        // Line cast = new Line(loc, lines.get(0).getU(), 0);
+        Line cast = new Line(loc, obliqueCast(), 300);
         int intersections = 0;
         for (Line l : lines) {
             Point3D g = l.getP0().subtract(cast.getP0());

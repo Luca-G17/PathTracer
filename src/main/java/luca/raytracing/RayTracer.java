@@ -29,7 +29,7 @@ public class RayTracer {
                 // double d = ray.getDirection().dotProduct(ray.getOrigin());
                 Point3D originToLoc = loc.subtract(ray.getOrigin());
                 if (ray.getDirection().dotProduct(originToLoc) > 0) {
-                    if (p.rayIsInPolygon(loc))
+                    if (p.rayIsInPolygon(loc, true))
                         collisions.add(new Collision(loc, obj, p));
                 }
             }

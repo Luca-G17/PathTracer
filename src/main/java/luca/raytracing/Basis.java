@@ -16,6 +16,9 @@ public class Basis {
         Point3D bitangent = tangent.crossProduct(normal);
         transform = new Matrix(tangent, normal, bitangent);
     }
+    Basis(Point3D normal, Point3D tangent, Point3D bitangent) {
+        transform = new Matrix(tangent, normal, bitangent);
+    }
     public Matrix getTransform() { return transform; }
     public Point3D getTangent() { return transform.getU(); }
     public Point3D getNormal() { return transform.getV(); }
