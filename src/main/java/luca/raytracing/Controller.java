@@ -9,9 +9,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 import java.util.stream.IntStream;
 
 public class Controller {
@@ -92,6 +92,7 @@ public class Controller {
         return b;
     }
 
+    /*
     public void startTracing() throws InterruptedException {
         double uScale = 1;
         double vScale = 1;
@@ -125,6 +126,114 @@ public class Controller {
             // Display bitmap
             if (s % 50 == 0) {
                 updateCanvas(WIDTH, HEIGHT, bitmap);
+            }
+        }
+    }
+
+     */
+
+
+
+    public void startTracing() throws InterruptedException {
+        double uScale = 1;
+        double vScale = 1;
+
+
+        if (WIDTH > HEIGHT) uScale = (double)WIDTH / HEIGHT;
+        else if (HEIGHT > WIDTH) vScale = (double)HEIGHT / WIDTH;
+
+        Color[][] bitmap = initBitmap(HEIGHT, WIDTH);
+        // Startup Threads:
+        final int threads = 8;
+        final Semaphore full = new Semaphore(0);
+        final Semaphore empty = new Semaphore(WIDTH);
+        final CountDownLatch finished = new CountDownLatch(WIDTH * HEIGHT);
+        Object queueMutex = new Object();
+        final Object bitmapMutex = new Object();
+        final Deque<int[]> workQueue = new ArrayDeque<>();
+        for (int i = 0; i < threads; i++) {
+            Thread t = new Thread(new Worker(full, empty, finished, workQueue, queueMutex, bitmapMutex, uScale, vScale, bitmap));
+            t.start();
+        }
+        // Producer Loop:
+        for (int s = 0; s < SAMPLES; s++) {
+            for (int y = 0; y < HEIGHT; y++) {
+                for (int x = 0; x < WIDTH; x++) {
+                    try {
+                        empty.acquire();
+                        synchronized (queueMutex) {
+                            workQueue.add(new int[]{x, y, s});
+                        }
+                        full.release();
+                    } catch (InterruptedException e) {
+                        System.out.println("Producer Interrupted, EXCEPTION: " + e);
+                    }
+                }
+            }
+            finished.await();
+            System.out.printf("Finished %s samples\n", s + 1);
+            if (s % 5 == 0) {
+                updateCanvas(WIDTH, HEIGHT, bitmap);
+            }
+        }
+    }
+    private class Worker implements Runnable {
+
+        private final Semaphore full;
+        private final Semaphore empty;
+        private final CountDownLatch finished;
+        private final Deque<int[]> workQueue;
+        private final Object queueMutex;
+        private final Object bitmapMutex;
+        private final double UScale;
+        private final double VScale;
+        private final Color[][] bitmap;
+        Worker(final Semaphore full,
+               final Semaphore empty,
+               final CountDownLatch finished,
+               final Deque<int[]> workQueue,
+               final Object queueMutex,
+               final Object bitmapMutex,
+               final double UScale,
+               final double VScale,
+               final Color[][] bitmap) {
+            this.full = full;
+            this.empty = empty;
+            this.finished = finished;
+            this.workQueue = workQueue;
+            this.queueMutex = queueMutex;
+            this.bitmapMutex = bitmapMutex;
+            this.UScale = UScale;
+            this.VScale = VScale;
+            this.bitmap = bitmap;
+        }
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    full.acquire();
+                    int[] coords;
+                    synchronized (queueMutex) {
+                        coords = workQueue.pop();
+                    }
+                    int x = coords[0];
+                    int y = coords[1];
+                    int s = coords[2];
+                    double u = 2 * (((double)x + 0.5) / (WIDTH - 1)) - 1;
+                    double v = 1 - (2 * (((double)y + 0.5) / (HEIGHT - 1)));
+                    u *= UScale;
+                    v *= VScale;
+                    Ray ray = camera.transformRay(u, v);
+                    Point3D color = tracer.traceRayRecursive(ray, 0);
+                    synchronized (bitmapMutex) {
+                        Color average = rollingColorAverage(color, bitmap[y][x], s);
+                        bitmap[y][x] = average;
+                    }
+                    empty.release();
+                    finished.countDown();
+                } catch (InterruptedException e) {
+                    System.out.println("Worker interrupted, EXCEPTION: " + e.getMessage());
+                }
             }
         }
     }

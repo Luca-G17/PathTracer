@@ -84,6 +84,7 @@ public class Polygon {
         return total;
     }
 
+    /*
     public boolean rayIsInPolygon(Point3D loc) {
         for (Line l : lines) {
             if (loc.equals(l.getP0())) { //TODO: Tolerances?
@@ -104,11 +105,49 @@ public class Polygon {
                 double t = (f.crossProduct(s)).dotProduct(rXs) / length2(rXs);
                 if (t >= 0.0 && t <= 1.0) // If the intersection is in the segment
                     intersections++;
-                    // Need to add a check for if the cast hits a corner, or if the 'loc' == corner
+                // Need to add a check for if the cast hits a corner, or if the 'loc' == corner
             }
             else if (areParallel) {
                 // Something has gone horribly wrong
                 assert(false);
+            }
+        }
+        return intersections % 2 != 0; // Odd = inside polygon
+    }
+
+     */
+
+    public boolean rayIsInPolygon(Point3D loc) {
+        Line cast = new Line(loc, lines.get(0).getU(), 0);
+        int intersections = 0;
+        for (Line l : lines) {
+            Point3D g = l.getP0().subtract(cast.getP0());
+            Point3D h = l.getU().crossProduct(g);
+            Point3D k = l.getU().crossProduct(cast.getU());
+            if (!h.equals(Point3D.ZERO) && !k.equals(Point3D.ZERO)) {
+                double scalar = vectorRatio(h, k);
+                if (scalar != 0){
+                    Point3D scaledVector = cast.getU().multiply(scalar);
+                    Point3D intersection;
+                    // Checks if vectors are parallel or antiparallel
+                    // TODO: May have to change this
+                    if (h.getX() * k.getX() > 0 || h.getY() * k.getY() > 0 || h.getZ() * k.getZ() > 0){
+                        intersection = cast.getP0().add(scaledVector);
+                    }
+                    else {
+                        intersection = cast.getP0().subtract(scaledVector);
+                    }
+                    // Plane normal = castU
+                    // d = castU.CastP0
+                    // if castU.intersection - d > 0
+                    double d = cast.getU().dotProduct(cast.getP0());
+                    if (cast.getU().dotProduct(intersection) - d > 0){
+                        double distToP0 = (l.getP0().subtract(intersection)).magnitude();
+                        double distToP1 = (l.getP1().subtract(intersection)).magnitude();
+                        if (distToP0 + distToP1 <= l.getLength())
+                            intersections++;
+                    }
+                }
             }
         }
         return intersections % 2 != 0; // Odd = inside polygon
