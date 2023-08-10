@@ -1,13 +1,12 @@
 package luca.raytracing;
 
 import javafx.geometry.Point3D;
-import javafx.scene.effect.Light.Point;
 
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class Polygon {
+public class Polygon implements Poly {
     private final List<Line> lines;
     private Point3D normal;
     private double d;
@@ -28,7 +27,7 @@ public class Polygon {
     public void setId(String id) { this.id = id; }
 
     // TODO: Make this immutable later
-    public void flipNormal() {
+    public void FlipNormal() {
         normal = normal.multiply(-1);
         d = lines.get(0).getP0().dotProduct(normal);
     }
@@ -124,7 +123,7 @@ public class Polygon {
             return true;
         return false;
     }
-    public boolean rayIsInPolygon(Point3D loc) {
+    public boolean RayHit(Point3D loc) {
         // Line cast = new Line(loc, lines.get(0).getU(), 0);
         Line cast = new Line(loc, obliqueCast(), 300);
         int intersections = 0;
@@ -160,10 +159,13 @@ public class Polygon {
         }
         return intersections % 2 != 0; // Odd = inside polygon
     }
-    public Polygon translate(Point3D p) {
+    public Polygon Translate(Point3D p) {
         return new Polygon(lines.stream().map(x -> x.translate(p)).collect(Collectors.toList()), this.id);
     }
-    public Polygon rotate(Matrix r) {
+    public Polygon Rotate(Matrix r) {
         return new Polygon(lines.stream().map(x -> x.rotate(r)).collect(Collectors.toList()), this.id);
+    }
+    public Polygon Rotate(Matrix r, Point3D origin) {
+        return Translate(origin).Rotate(r).Translate(origin.multiply(-1));
     }
 }

@@ -31,9 +31,9 @@ public class Cube extends WorldObject {
                 x.translate(new Point3D(0, 0, height)),
                 z.translate(new Point3D(height, 0, 0))
         ), "Top");
-        Polygon back = front.translate(new Point3D(0, 0, height));
-        Polygon right = left.translate(new Point3D(height, 0, 0));
-        Polygon bottom = top.translate(new Point3D(0, -height, 0));
+        Polygon back = front.Translate(new Point3D(0, 0, height));
+        Polygon right = left.Translate(new Point3D(height, 0, 0));
+        Polygon bottom = top.Translate(new Point3D(0, -height, 0));
         back.setId("Back"); right.setId("Right"); bottom.setId("Bottom");
         this.mesh = new ArrayList<>(Arrays.asList(
                 front,
@@ -50,14 +50,14 @@ public class Cube extends WorldObject {
         flipEdgeNormal("Top");
     }
     private void flipEdgeNormal(String id) {
-        for (Polygon p : mesh) {
+        for (Poly p : mesh) {
             if (p.getId().equals(id)) {
-                p.flipNormal();
+                p.FlipNormal();
             }
         }
     }
     private void translate(Point3D t) {
-        this.mesh = getMesh().stream().map(p -> p.translate(t)).toList();
+        this.mesh = getMesh().stream().map(p -> p.Translate(t)).toList();
         this.setPos(t);
     }
     private void rotate(Point3D rot) {
@@ -65,6 +65,6 @@ public class Cube extends WorldObject {
         Matrix rYaw = Matrix.RotationVectorAxis(rot.getY(), new Point3D(0, 1, 0));
         Matrix rRoll = Matrix.RotationVectorAxis(rot.getZ(), new Point3D(0, 0, 1));
         Matrix r = Matrix.Combine(Arrays.asList(rPitch, rYaw, rRoll));
-        this.mesh = getMesh().stream().map(p -> p.rotate(r)).toList();
+        this.mesh = getMesh().stream().map(p -> p.Rotate(r)).toList();
     }
 }

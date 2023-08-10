@@ -9,6 +9,10 @@ public class Light {
         this.position = position;
         this.intensity = intensity;
     }
-    public double getIntensity() { return intensity; }
-    public Point3D getPosition() { return position; }
+    public double getIntensity() {
+        return intensity;
+    }
+    public Point3D getPosition() {
+        return position;
+    }
 }

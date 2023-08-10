@@ -20,10 +20,18 @@ public class Line {
         return u.dotProduct(l.getU());
     }
 
-    public Point3D getP1() { return p1; }
-    public Point3D getP0() { return p0; }
-    public double getLength() { return length; }
-    public Point3D getU() { return u; }
+    public Point3D getP1() {
+        return p1;
+    }
+    public Point3D getP0() {
+        return p0;
+    }
+    public double getLength() {
+        return length;
+    }
+    public Point3D getU() {
+        return u;
+    }
     public Line translate(Point3D p) {
         return new Line(p0.add(p), u, length);
     }
@@ -32,5 +40,8 @@ public class Line {
         Point3D newP1 = rotation.MultiplyPoint3D(p1);
         Point3D newU = newP1.subtract(newP0);
         return new Line(newP0, newU, length);
+    }
+    public Line rotate(Matrix rotation, Point3D origin) {
+        return translate(origin).rotate(rotation).translate(origin.multiply(-1));
     }
 }

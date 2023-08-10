@@ -23,9 +23,9 @@ public class Plane extends WorldObject {
         Matrix rPitch = Matrix.RotationVectorAxis(pitch, new Point3D(1, 0, 0));
         Matrix rRoll = Matrix.RotationVectorAxis(roll, new Point3D(0, 0, 1));
         Matrix r = Matrix.Combine(Arrays.asList(rPitch, rRoll));
-        p = p.rotate(r);
-        p = p.translate(pos);
-        p.flipNormal();
+        p = p.Rotate(r);
+        p = p.Translate(pos);
+        p.FlipNormal();
         mesh = new ArrayList<>(List.of(p));
     }
 }
