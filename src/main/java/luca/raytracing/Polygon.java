@@ -24,6 +24,15 @@ public class Polygon implements Poly {
         d = l1.getP0().dotProduct(normal); // n.p = d
     }
     public String getId() { return id; }
+
+    @Override
+    public Point3D HitLoc(Ray ray) {
+        double x = normal.dotProduct(ray.getOrigin()); // n.p0
+        double y = normal.dotProduct(ray.getDirection()); // n.u
+        double t = (d - x) / y; // t = (d - n.p0) / n.u
+        return ray.getOrigin().add(ray.getDirection().multiply(t)); // p = p0 + tu
+    }
+
     public void setId(String id) { this.id = id; }
 
     // TODO: Make this immutable later
@@ -31,14 +40,9 @@ public class Polygon implements Poly {
         normal = normal.multiply(-1);
         d = lines.get(0).getP0().dotProduct(normal);
     }
-    public Point3D getNormal() { return normal; }
 
-    public Point3D hitLoc(Ray ray) {
-        double x = normal.dotProduct(ray.getOrigin()); // n.p0
-        double y = normal.dotProduct(ray.getDirection()); // n.u
-        double t = (d - x) / y; // t = (d - n.p0) / n.u
-        return ray.getOrigin().add(ray.getDirection().multiply(t)); // p = p0 + tu
-    }
+    @Override
+    public Point3D GetNormal() { return normal; }
     public double vectorRatio(Point3D v1, Point3D v2) {
         return v1.magnitude() / v2.magnitude();
     }
@@ -83,41 +87,9 @@ public class Polygon implements Poly {
         return total;
     }
 
-    /*
-    public boolean rayIsInPolygon(Point3D loc) {
-        for (Line l : lines) {
-            if (loc.equals(l.getP0())) { //TODO: Tolerances?
-                return true;
-            }
-        }
-        Point3D cDir = obliqueCast();
-        Line cast = new Line(loc, cDir, perimeter());
-        int intersections = 0;
-        for (Line l : lines) {
-            Point3D r = l.getP1().subtract(l.getP0()); //  l1 = p + tr
-            Point3D s = cast.getP1().subtract(cast.getP0()); // l2 = q + us
-            Point3D f = cast.getP0().subtract(l.getP0());
-            boolean areParallel = r.dotProduct(s) == 0.0;
-            boolean arePlanar = f.dotProduct(r.crossProduct(s)) != 0.0; //TODO: Tolerances?
-            if (arePlanar && !areParallel) {
-                Point3D rXs = r.crossProduct(s);
-                double t = (f.crossProduct(s)).dotProduct(rXs) / length2(rXs);
-                if (t >= 0.0 && t <= 1.0) // If the intersection is in the segment
-                    intersections++;
-                // Need to add a check for if the cast hits a corner, or if the 'loc' == corner
-            }
-            else if (areParallel) {
-                // Something has gone horribly wrong
-                assert(false);
-            }
-        }
-        return intersections % 2 != 0; // Odd = inside polygon
-    }
-
-     */
     public boolean rayIsInPolygon(Point3D loc, boolean overload) {
         // Convert loc to u, v coords
-        Basis basis = new Basis(lines.get(0).getU(), this.getNormal(), lines.get(1).getU());
+        Basis basis = new Basis(lines.get(0).getU(), this.GetNormal(), lines.get(1).getU());
         Point3D locInBasis = basis.getTransform().MultiplyPoint3D(loc);
         if (locInBasis.getX() <= 1 && locInBasis.getX() >= 0 && locInBasis.getZ() <= 1 && locInBasis.getZ() >= 0)
             return true;

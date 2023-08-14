@@ -27,6 +27,7 @@ public class Triangle implements Poly {
         normal = normal.multiply(-1);
         d = lines.get("p1p2").getP0().dotProduct(normal);
     }
+    @Override
     public Point3D HitLoc(Ray ray) {
         double x = normal.dotProduct(ray.getOrigin()); // n.p0
         double y = normal.dotProduct(ray.getDirection()); // n.u
@@ -40,6 +41,12 @@ public class Triangle implements Poly {
         }
         return new Triangle(ls);
     }
+
+    @Override
+    public Point3D GetNormal() {
+        return normal;
+    }
+
     public Triangle Rotate(Matrix r) {
         return Rotate(r, Point3D.ZERO);
     }
@@ -52,16 +59,21 @@ public class Triangle implements Poly {
     }
     public boolean RayHit(Point3D col) {
         // https://math.stackexchange.com/questions/4322/check-whether-a-point-is-within-a-3d-triangle
-        double area = lines.get("p1p2").crossProduct(lines.get("p3p1")).magnitude();
-        Point3D PC = lines.get("p3p1").getP0().subtract(col);
-        Point3D PB = lines.get("p2p1").getP0().subtract(col);
-        Point3D PA = lines.get("p1p2").getP0().subtract(col);
+        Point3D A = lines.get("p1p2").getP0();
+        Point3D B = lines.get("p2p3").getP0();
+        Point3D C = lines.get("p3p1").getP0();
+        double area = ((B.subtract(A)).crossProduct(C.subtract(A))).magnitude();
+        Point3D PC = C.subtract(col);
+
+        Point3D PB = B.subtract(col);
+
+        Point3D PA = A.subtract(col);
         double alpha = PB.crossProduct(PC).magnitude() / area;
         double beta = PC.crossProduct(PA).magnitude() / area;
-        double gamma = 1 - alpha - beta;
+        double gamma = PA.crossProduct(PB).magnitude() / area;
         return  (alpha >= 0 && alpha <= 1) &&
                 (beta  >= 0 && beta  <= 1) &&
                 (gamma >= 0 && gamma <= 1) &&
-                (alpha + beta + gamma == 1);
+                (Math.abs(alpha + beta + gamma - 1) <= 0.01);
     }
 }

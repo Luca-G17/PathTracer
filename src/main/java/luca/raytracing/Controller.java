@@ -15,11 +15,11 @@ import java.util.concurrent.Semaphore;
 import java.util.stream.IntStream;
 
 public class Controller {
-    private final Camera camera;
+    private Camera camera;
     private final RayTracer tracer;
     private final int HEIGHT = 800;
     private final int WIDTH = 1000;
-    private final int SAMPLES = 20000;
+    private final int SAMPLES = 1000;
     @FXML public Canvas canvas;
     @FXML public Text mousePos;
     @FXML public VBox box;
@@ -34,24 +34,64 @@ public class Controller {
     );
 
     public Controller() {
+        enum Scene {
+            POLYGONS,
+            TRIANGLES
+        }
+
         // Create world here
         List<WorldObject> world = new ArrayList<>();
-        world.add(new Plane(materials.get("WHITE"), 100, 0, 0, new Point3D(-20, -2, -20)));
-        world.add(new Plane(materials.get("RED"), 100, -Math.PI / 2, 0, new Point3D(-20, -3, 14)));
-        world.add(new Plane(materials.get("BLUE"), 100, 0, -Math.PI / 2, new Point3D(-4, 97, -20)));
-        world.add(new Plane(materials.get("WHITE"), 100, 0, Math.PI / 2, new Point3D(5, -3, -20)));
-        world.add(new Plane(materials.get("WHITE"), 100, Math.PI / 2, 0, new Point3D(-20, 40, -3)));
-        world.add(new Plane(materials.get("WHITE"), 100, Math.PI, 0, new Point3D(-20, 10, 20)));
-
-        world.add(new Cube(materials.get("WHITE-EMITTER"), 3, new Point3D(0, 2, 10), new Point3D(0, Math.PI / 8, 0))); // Mirror Cube
-        world.add(new Cube(materials.get("WHITE"), 1, new Point3D(-3, -1, 5), new Point3D(0, 0, 0)));
-        //Cube light = new Cube(materials.get("WHITE-EMITTER"), 1, new Point3D(-2, 3, 4), new Point3D(0, 0, 0));
         List<Light> lights = new ArrayList<>();
-        // lights.add(new Light(new Point3D(0, 6, 10), 50.0));
-        // lights.add(new Light(new Point3D(0, 6, 4), 110.0));
 
 
-        this.camera = new Camera(new Point3D(1, 3, 1), -10 * Math.PI / 180, 10 * Math.PI / 180, 80 * Math.PI / 180);
+        Scene scene = Scene.TRIANGLES;
+        switch (scene) {
+            case POLYGONS -> {
+                world.add(new Plane(materials.get("WHITE"), 100, 0, 0, new Point3D(-20, -2, -20)));
+                world.add(new Plane(materials.get("RED"), 100, -Math.PI / 2, 0, new Point3D(-20, -3, 14)));
+                world.add(new Plane(materials.get("BLUE"), 100, 0, -Math.PI / 2, new Point3D(-4, 97, -20)));
+                world.add(new Plane(materials.get("WHITE"), 100, 0, Math.PI / 2, new Point3D(5, -3, -20)));
+                world.add(new Plane(materials.get("WHITE"), 100, Math.PI / 2, 0, new Point3D(-20, 40, -3)));
+                world.add(new Plane(materials.get("WHITE"), 100, Math.PI, 0, new Point3D(-20, 10, 20)));
+
+                world.add(new Cube(materials.get("WHITE-EMITTER"), 3, new Point3D(0, 2, 10), new Point3D(0, Math.PI / 8, 0))); // Mirror Cube
+                world.add(new Cube(materials.get("WHITE"), 1, new Point3D(-3, -1, 5), new Point3D(0, 0, 0)));
+                // world.add(new TriPlane(materials.get("GREEN"), new Point3D(0, 0, 0), new Point3D(1, 4, 6), new Point3D(1, 1, 6), new Point3D(2, 1, 6)));
+                //Cube light = new Cube(materials.get("WHITE-EMITTER"), 1, new Point3D(-2, 3, 4), new Point3D(0, 0, 0));
+                // lights.add(new Light(new Point3D(0, 6, 10), 50.0));
+                // lights.add(new Light(new Point3D(0, 6, 4), 110.0));
+                this.camera = new Camera(new Point3D(1, 3, 1), -10 * Math.PI / 180, 10 * Math.PI / 180, 80 * Math.PI / 180);
+
+            }
+            case TRIANGLES -> {
+                double boxHeight = 10;
+                double boxWidth = 10;
+                double boxDepth = 15;
+                Point3D floorBackLeft = new Point3D(-boxWidth / 2, -2, boxDepth);
+                Point3D floorBackRight = new Point3D(boxWidth / 2, -2, boxDepth);
+                Point3D floorFrontLeft = new Point3D(-boxWidth / 2, -2, 0);
+                Point3D floorFrontRight = new Point3D(boxWidth / 2, -2, 0);
+                Point3D roofBackLeft = floorBackLeft.add(new Point3D(0, boxHeight, 0));
+                Point3D roofBackRight = floorBackRight.add(new Point3D(0, boxHeight, 0));
+                Point3D roofFrontLeft = floorFrontLeft.add(new Point3D(0, boxHeight, 0));
+                Point3D roofFrontRight = floorFrontRight.add(new Point3D(0, boxHeight, 0));
+
+                // Box
+                world.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorFrontLeft, floorBackLeft, floorFrontRight, floorBackRight)); // Floor
+                world.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorFrontLeft, roofFrontLeft, floorBackLeft, roofBackLeft)); // Left
+                world.add(new TriPlane(materials.get("RED"), new Point3D(0, 0, 0), floorBackLeft, roofBackLeft, floorBackRight, roofBackRight)); // Back
+                world.add(new TriPlane(materials.get("GREEN"), new Point3D(0, 0, 0), roofBackLeft, roofFrontLeft, roofBackRight, roofFrontRight)); // Top
+                world.add(new TriPlane(materials.get("BLUE"), new Point3D(0, 0, 0), floorBackRight, roofBackRight, floorFrontRight, roofFrontRight)); // Right
+                world.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorFrontRight, roofFrontRight, floorFrontLeft, roofFrontLeft)); // Front
+                //world.add(new TriPlane(materials.get("WHITE-EMITTER"), new Point3D(0, 0, 0), new Point3D(-boxWidth / 6, boxHeight,  2 * boxDepth / 3)));
+
+                // World Objects
+                world.add(new TriCube(materials.get("WHITE-EMITTER"), 3,new Point3D(1, 2, 10), new Point3D(0, Math.PI / 8, 0)));
+                world.add(new TriCube(materials.get("WHITE"), 2, new Point3D(-2, 1, 10), new Point3D(0, 0, 0)));
+                // Camera
+                this.camera = new Camera(new Point3D(0, 3, 1), 0 * Math.PI / 180, 0 * Math.PI / 180, 80 * Math.PI / 180);
+            }
+        }
         tracer = new RayTracer(world, lights);
     }
 
@@ -91,49 +131,6 @@ public class Controller {
         }
         return b;
     }
-
-    /*
-    public void startTracing() throws InterruptedException {
-        double uScale = 1;
-        double vScale = 1;
-
-        Object mutex = new Object();
-
-        if (WIDTH > HEIGHT) uScale = (double)WIDTH / HEIGHT;
-        else if (HEIGHT > WIDTH) vScale = (double)HEIGHT / WIDTH;
-        double finalUScale = uScale;
-        double finalVScale = vScale;
-
-        // Spin up n threads, wait all threads compute a single round of the bitmap
-        Color[][] bitmap = initBitmap(HEIGHT, WIDTH);
-        for (int s = 0; s < SAMPLES; s++) {
-            // Each thread computes a row
-            int finalS = s;
-            IntStream.range(0, HEIGHT).parallel().forEach(y -> {
-                for (int x = 0; x < WIDTH; x++) {
-                    double u = 2 * (((double)x + 0.5) / (WIDTH - 1)) - 1;
-                    double v = 1 - (2 * (((double)y + 0.5) / (HEIGHT - 1)));
-                    u *= finalUScale;
-                    v *= finalVScale;
-                    Ray ray = camera.transformRay(u, v);
-                    Point3D color = tracer.traceRayRecursive(ray, 0);
-                    synchronized (mutex) {
-                        Color average = rollingColorAverage(color, bitmap[y][x], finalS);
-                        bitmap[y][x] = average;
-                    }
-                }
-            });
-            // Display bitmap
-            if (s % 50 == 0) {
-                updateCanvas(WIDTH, HEIGHT, bitmap);
-            }
-        }
-    }
-
-     */
-
-
-
     public void startTracing() throws InterruptedException {
         double uScale = 1;
         double vScale = 1;
@@ -144,7 +141,7 @@ public class Controller {
 
         Color[][] bitmap = initBitmap(HEIGHT, WIDTH);
         // Startup Threads:
-        final int threads = 4;
+        final int threads = 10;
         final Semaphore full = new Semaphore(0);
         final Semaphore empty = new Semaphore(WIDTH);
         final CountDownLatch finished = new CountDownLatch(WIDTH * HEIGHT);
@@ -171,8 +168,7 @@ public class Controller {
                 }
             }
             finished.await();
-            System.out.printf("Finished %s samples\n", s + 1);
-            if (s % 5 == 0) {
+            if (s % 1 == 0) {
                 updateCanvas(WIDTH, HEIGHT, bitmap);
             }
         }

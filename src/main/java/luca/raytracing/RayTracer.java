@@ -17,19 +17,24 @@ public class RayTracer {
         this.lights = lights;
     }
 
-    private record Collision(Point3D point, WorldObject hit, Polygon polygon) {}
+    private record Collision(Point3D point, WorldObject hit, Poly polygon) {}
 
     // TODO: If this has problems potentially the line cast parallel to the plane is on top of a boundary line
     private Optional<Collision> rayCollision(Ray ray) {
         List<Collision> collisions = new ArrayList<>();
         for (WorldObject obj : world) {
-            for (Polygon p : obj.getMesh()) {
-                Point3D loc = p.hitLoc(ray);
+            for (Poly p : obj.getMesh()) {
+                Point3D loc = p.HitLoc(ray);
 
                 // double d = ray.getDirection().dotProduct(ray.getOrigin());
                 Point3D originToLoc = loc.subtract(ray.getOrigin());
+                if (p.RayHit(loc)) {
+                    if (p instanceof TriCube) {
+                        int x = 0;
+                    }
+                }
                 if (ray.getDirection().dotProduct(originToLoc) > 0) {
-                    if (p.rayIsInPolygon(loc, true))
+                    if (p.RayHit(loc))
                         collisions.add(new Collision(loc, obj, p));
                 }
             }
@@ -58,7 +63,7 @@ public class RayTracer {
         }
         Collision col = optCol.get();
 
-        Basis basis = new Basis(col.polygon.getNormal());
+        Basis basis = new Basis(col.polygon.GetNormal());
         Direction outgoing = new Direction(ray.getDirection().multiply(-1), basis);
 
         Material mat = col.hit.getMat();
@@ -69,7 +74,7 @@ public class RayTracer {
         }
 
         Point3D newDir = mat.samplePDF(outgoing, basis);
-        Ray newRay = new Ray(col.point().add(col.polygon.getNormal().multiply(0.001)), newDir);
+        Ray newRay = new Ray(col.point().add(col.polygon.GetNormal().multiply(0.001)), newDir);
         return vectorMultiply(throughput, traceRayRecursive(newRay, depth + 1));
     }
 }
