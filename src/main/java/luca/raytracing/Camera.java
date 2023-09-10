@@ -41,7 +41,7 @@ public class Camera {
         this.fovFactor = 1.0 / Math.tan(fov / 2);
     }
     public Ray transformRay(double u, double v) {
-        Ray ray = new Ray(new Point3D(0, 0, 0), new Point3D(u, v, fovFactor));
+        Ray ray = new Ray(new Point3D(0, 0, 0), new Point3D(u, v, fovFactor), false);
         return ray.transform(view, pos);
     }
 }

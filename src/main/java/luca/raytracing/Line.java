@@ -35,13 +35,10 @@ public class Line {
     public Line translate(Point3D p) {
         return new Line(p0.add(p), u, length);
     }
-    public Line rotate(Matrix rotation) {
-        Point3D newP0 = rotation.MultiplyPoint3D(p0);
-        Point3D newP1 = rotation.MultiplyPoint3D(p1);
+    public Line Rotate(MatrixNxM rotation) {
+        Point3D newP0 = rotation.Multiply(p0);
+        Point3D newP1 = rotation.Multiply(p1);
         Point3D newU = newP1.subtract(newP0);
         return new Line(newP0, newU, length);
-    }
-    public Line rotate(Matrix rotation, Point3D origin) {
-        return translate(origin).rotate(rotation).translate(origin.multiply(-1));
     }
 }

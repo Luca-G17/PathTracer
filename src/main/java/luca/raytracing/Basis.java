@@ -11,10 +11,10 @@ public class Basis {
             tangent = new Point3D(1, 0, 0);
         else {
             // (z, 0, -x) = cross((0, 1, 0), (x, y , z))
-            tangent = (new Point3D(normal.getZ(), 0, -normal.getX())).normalize();
+            tangent = new Point3D(normal.getZ(), 0, -normal.getX());
         }
         Point3D bitangent = tangent.crossProduct(normal);
-        transform = new Matrix(tangent, normal, bitangent);
+        transform = new Matrix(tangent.normalize(), normal.normalize(), bitangent.normalize());
     }
     Basis(Point3D normal, Point3D tangent, Point3D bitangent) {
         transform = new Matrix(tangent, normal, bitangent);

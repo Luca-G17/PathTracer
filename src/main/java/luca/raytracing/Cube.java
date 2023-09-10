@@ -5,7 +5,7 @@ import javafx.geometry.Point3D;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Cube extends WorldObject {
+public class Cube extends MeshObject {
     private final double height;
     Cube(Material mat, double h, Point3D pos, Point3D rot) {
         super(mat, pos);
@@ -57,14 +57,11 @@ public class Cube extends WorldObject {
         }
     }
     private void translate(Point3D t) {
-        this.mesh = getMesh().stream().map(p -> p.Translate(t)).toList();
+        this.mesh = this.mesh.stream().map(p -> p.Translate(t)).toList();
         this.setPos(t);
     }
     private void rotate(Point3D rot) {
-        Matrix rPitch = Matrix.RotationVectorAxis(rot.getX(), new Point3D(1, 0, 0));
-        Matrix rYaw = Matrix.RotationVectorAxis(rot.getY(), new Point3D(0, 1, 0));
-        Matrix rRoll = Matrix.RotationVectorAxis(rot.getZ(), new Point3D(0, 0, 1));
-        Matrix r = Matrix.Combine(Arrays.asList(rPitch, rYaw, rRoll));
-        this.mesh = getMesh().stream().map(p -> p.Rotate(r)).toList();
+        MatrixNxM r = MatrixNxM.RotationMatrix(rot.getX(), rot.getY(), rot.getY());
+        this.mesh = this.mesh.stream().map(p -> p.Rotate(r)).toList();
     }
 }

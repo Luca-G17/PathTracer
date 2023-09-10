@@ -2,8 +2,7 @@ package luca.raytracing;
 
 import javafx.geometry.Point3D;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Triangle implements Poly {
     private Point3D normal;
@@ -27,17 +26,34 @@ public class Triangle implements Poly {
         normal = normal.multiply(-1);
         d = lines.get("p1p2").getP0().dotProduct(normal);
     }
+    public HashMap<String, Line> Lines() {
+        return lines;
+    }
     @Override
-    public Point3D HitLoc(Ray ray) {
+    public Optional<Point3D> HitLoc(Ray ray) {
         double x = normal.dotProduct(ray.getOrigin()); // n.p0
         double y = normal.dotProduct(ray.getDirection()); // n.u
         double t = (d - x) / y; // t = (d - n.p0) / n.u
-        return ray.getOrigin().add(ray.getDirection().multiply(t)); // p = p0 + tu
+        Point3D col = ray.getOrigin().add(ray.getDirection().multiply(t)); // p = p0 + tu
+        if (RayHit(col)) {
+            return Optional.of(col);
+        }
+        return Optional.empty();
     }
-    public Triangle Rotate(Matrix r, Point3D origin) {
+
+    @Override
+    public List<Point3D> GetPoints() {
+        ArrayList<Point3D> points = new ArrayList<>();
+        points.add(lines.get("p1p2").getP0());
+        points.add(lines.get("p2p3").getP0());
+        points.add(lines.get("p3p1").getP0());
+        return points;
+    }
+
+    public Triangle Rotate(MatrixNxM rotation) {
         HashMap<String, Line> ls = new HashMap<>();
         for (Map.Entry<String, Line> l : lines.entrySet()) {
-            ls.put(l.getKey(), l.getValue().rotate(r, origin));
+            ls.put(l.getKey(), l.getValue().Rotate(rotation));
         }
         return new Triangle(ls);
     }
@@ -47,9 +63,7 @@ public class Triangle implements Poly {
         return normal;
     }
 
-    public Triangle Rotate(Matrix r) {
-        return Rotate(r, Point3D.ZERO);
-    }
+    @Override
     public Triangle Translate(Point3D t) {
         HashMap<String, Line> ls = new HashMap<>();
         for (Map.Entry<String, Line> l : lines.entrySet()) {
@@ -57,6 +71,8 @@ public class Triangle implements Poly {
         }
         return new Triangle(ls);
     }
+
+    @Override
     public boolean RayHit(Point3D col) {
         // https://math.stackexchange.com/questions/4322/check-whether-a-point-is-within-a-3d-triangle
         Point3D A = lines.get("p1p2").getP0();
@@ -75,5 +91,10 @@ public class Triangle implements Poly {
                 (beta  >= 0 && beta  <= 1) &&
                 (gamma >= 0 && gamma <= 1) &&
                 (Math.abs(alpha + beta + gamma - 1) <= 0.01);
+    }
+
+    @Override
+    public Triangle Scale(final double ScaleX, final double ScaleY, final double ScaleZ) {
+        return this;
     }
 }

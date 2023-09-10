@@ -14,6 +14,18 @@
         <junit.version>5.8.2</junit.version>
     </properties>
 
+    <profiles>
+        <profile>
+           <id>GUI</id>
+            <properties>
+                <MainClass>luca.raytracing.App</MainClass>
+                <jar.finalName>PathTracer</jar.finalName>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+    </profiles>
     <dependencies>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -31,7 +43,11 @@
             <artifactId>javafx-fxml</artifactId>
             <version>18.0.1</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>11-ea+24</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -57,6 +73,30 @@
                     <target>17</target>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <ShadedArtificatAttached>true</ShadedArtificatAttached>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>luca.raytracing.App</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>

@@ -3,6 +3,7 @@ package luca.raytracing;
 import javafx.geometry.Point3D;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -26,11 +27,11 @@ public class Polygon implements Poly {
     public String getId() { return id; }
 
     @Override
-    public Point3D HitLoc(Ray ray) {
+    public Optional<Point3D> HitLoc(Ray ray) {
         double x = normal.dotProduct(ray.getOrigin()); // n.p0
         double y = normal.dotProduct(ray.getDirection()); // n.u
         double t = (d - x) / y; // t = (d - n.p0) / n.u
-        return ray.getOrigin().add(ray.getDirection().multiply(t)); // p = p0 + tu
+        return Optional.of(ray.getOrigin().add(ray.getDirection().multiply(t))); // p = p0 + tu
     }
 
     public void setId(String id) { this.id = id; }
@@ -134,10 +135,22 @@ public class Polygon implements Poly {
     public Polygon Translate(Point3D p) {
         return new Polygon(lines.stream().map(x -> x.translate(p)).collect(Collectors.toList()), this.id);
     }
-    public Polygon Rotate(Matrix r) {
-        return new Polygon(lines.stream().map(x -> x.rotate(r)).collect(Collectors.toList()), this.id);
+
+    @Override
+    public Polygon Rotate(MatrixNxM r) {
+        return new Polygon(lines.stream().map(x -> x.Rotate(r)).collect(Collectors.toList()), this.id);
     }
-    public Polygon Rotate(Matrix r, Point3D origin) {
+    public Polygon Rotate(MatrixNxM r, Point3D origin) {
         return Translate(origin).Rotate(r).Translate(origin.multiply(-1));
+    }
+
+    @Override
+    public List<Point3D> GetPoints() {
+        return null;
+    }
+
+    @Override
+    public Polygon Scale(final double ScaleX, final double ScaleY, final double ScaleZ) {
+        return this;
     }
 }

@@ -5,7 +5,8 @@ import javafx.geometry.Point3D;
 public interface Material {
 
     Point3D weightPDF(Direction outgoing, Basis basis);
-    Point3D samplePDF(Direction outgoing, Basis basis);
-    Point3D BRDF();
+    PostCollision samplePDF(Direction outgoing, Basis basis, boolean isInsideMesh);
     Point3D emittance(Direction outgoing, Basis basis);
+    record PostCollision(Point3D outVector, boolean isRefracted) {
+    }
 }

@@ -14,15 +14,17 @@ public class Mirror implements Material {
         return this.reflection;
     }
 
-    @Override public Point3D samplePDF(Direction outgoing, Basis basis) {
-        return (basis.getNormal().multiply(2).multiply(outgoing.getCosTheta())).subtract(outgoing.getVector());
-    }
-
-    @Override public Point3D BRDF() {
-        return Point3D.ZERO;
+    @Override public PostCollision samplePDF(Direction outgoing, Basis basis, boolean isInsideMesh) {
+        return new PostCollision(reflect(outgoing, basis), false);
     }
 
     @Override public Point3D emittance(Direction outgoing, Basis basis) {
         return emittance;
+    }
+
+    public static Point3D reflect(Direction outgoing, Basis basis) {
+        Point3D normal = basis.getNormal().normalize();
+        Point3D incoming = outgoing.getVector().multiply(-1).normalize();
+        return incoming.subtract(normal.multiply(2.0 * normal.dotProduct(incoming)));
     }
 }

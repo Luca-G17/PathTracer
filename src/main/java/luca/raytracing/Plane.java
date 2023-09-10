@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Plane extends WorldObject {
+public class Plane extends MeshObject {
     private final double length;
     Plane(Material mat, double l, double pitch, double roll, Point3D pos) {
         super(mat, pos);
@@ -20,9 +20,7 @@ public class Plane extends WorldObject {
                 x.translate(new Point3D(0, 0, l)),
                 z.translate(new Point3D(l,0, 0))
         ));
-        Matrix rPitch = Matrix.RotationVectorAxis(pitch, new Point3D(1, 0, 0));
-        Matrix rRoll = Matrix.RotationVectorAxis(roll, new Point3D(0, 0, 1));
-        Matrix r = Matrix.Combine(Arrays.asList(rPitch, rRoll));
+        MatrixNxM r = MatrixNxM.RotationMatrix(0.0, pitch, roll);
         p = p.Rotate(r);
         p = p.Translate(pos);
         p.FlipNormal();
