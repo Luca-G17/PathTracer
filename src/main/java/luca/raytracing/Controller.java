@@ -176,7 +176,7 @@ public class Controller {
 
         Color[][] bitmap = initBitmap(HEIGHT, WIDTH);
         // Startup Threads:
-        final int threads = 14;
+        final int threads = 4;
         final Semaphore full = new Semaphore(0);
         final Semaphore empty = new Semaphore(WIDTH);
         final CountDownLatch finished = new CountDownLatch(WIDTH * HEIGHT);
