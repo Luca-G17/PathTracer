@@ -212,7 +212,7 @@ public class Controller {
             if (s % 1 == 0 && gui) {
                 updateCanvas(WIDTH, HEIGHT, bitmap);
             }
-            if (s % 100 == 0 && s > 0) {
+            if (s % 100 == 0) {
                 OutputBitmap(WIDTH, HEIGHT, s, bitmap);
             }
         }
@@ -264,9 +264,6 @@ public class Controller {
                     u *= UScale;
                     v *= VScale;
                     Ray ray = camera.transformRay(u, v);
-                    if (x == 670 && y == 540) {
-                        int asd = 0;
-                    }
                     Point3D color = tracer.traceRayRecursive(ray, 0);
 
                     synchronized (bitmapMutex) {
