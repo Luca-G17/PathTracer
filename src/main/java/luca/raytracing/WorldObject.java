@@ -29,7 +29,6 @@ public abstract class WorldObject {
         Point3D u = p2.subtract(p1);
         return new Line(p1, u, u.magnitude());
     }
-
     public abstract Optional<WorldObject.Collision> Collision(Ray ray);
 
     public record Collision(Point3D point, Material mat, Point3D normal) {

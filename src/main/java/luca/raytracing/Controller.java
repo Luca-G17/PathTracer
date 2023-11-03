@@ -21,7 +21,7 @@ import java.util.concurrent.Semaphore;
 public class Controller {
     private Camera camera;
     private final RayTracer tracer;
-    private final int HEIGHT = 800;
+    private final int HEIGHT = 600;
     private final int WIDTH = 1000;
     private final int SAMPLES = 10000;
     private final boolean gui;

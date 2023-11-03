@@ -4,10 +4,11 @@ import javafx.geometry.Point3D;
 
 import java.util.*;
 
-public class Triangle implements Poly {
+public class Triangle implements Poly, Hittable {
     private Point3D normal;
     private double d;
     private final HashMap<String, Line> lines = new HashMap<>();
+    private AABB bbox;
     Triangle(Material mat, Point3D p1, Point3D p2, Point3D p3) {
         lines.put("p1p2", WorldObject.PointsToLine(p1, p2));
         lines.put("p2p3", WorldObject.PointsToLine(p2, p3));
@@ -29,6 +30,7 @@ public class Triangle implements Poly {
     public HashMap<String, Line> Lines() {
         return lines;
     }
+
     @Override
     public Optional<Point3D> HitLoc(Ray ray) {
         double x = normal.dotProduct(ray.getOrigin()); // n.p0
@@ -96,5 +98,26 @@ public class Triangle implements Poly {
     @Override
     public Triangle Scale(final double ScaleX, final double ScaleY, final double ScaleZ) {
         return this;
+    }
+
+    @Override
+    public AABB GetBoundingBox() {
+        return null;
+    }
+
+    @Override
+    public void GenerateBoundingBox() {
+        Point3D min = new Point3D(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        Point3D max = new Point3D(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+        for (Point3D p : this.GetPoints()) {
+            for (int a = 0; a < 3; a++) {
+                double d = VectorMath.P3At(p, a);
+                if (d < VectorMath.P3At(min, a))
+                    min = VectorMath.P3SetAt(p, a, d);
+                else if (d > VectorMath.P3At(max, a))
+                    max = VectorMath.P3SetAt(p, a, d);
+            }
+        }
+        this.bbox = new AABB(min, max);
     }
 }

@@ -17,7 +17,7 @@ public class App extends Application {
 
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("MainWindow.fxml"));
         fxmlLoader.setController(controller);
-        Scene scene = new Scene(fxmlLoader.load(), 1000, 800);
+        Scene scene = new Scene(fxmlLoader.load(), 1000, 600);
         stage.setTitle("Path Tracer");
         stage.setScene(scene);
         stage.setOnShowing(windowEventHandler);

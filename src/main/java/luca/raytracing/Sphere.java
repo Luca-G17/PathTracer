@@ -5,10 +5,12 @@ import javafx.geometry.Point3D;
 import java.util.List;
 import java.util.Optional;
 
-public class Sphere extends WorldObject implements Poly {
+public class Sphere extends WorldObject implements Poly, Hittable {
 
     private final double radius;
     private Point3D centre;
+    private AABB bbox;
+
     Sphere(Material mat, Point3D pos, double radius) {
         super(mat, pos);
         this.radius = radius;
@@ -91,6 +93,19 @@ public class Sphere extends WorldObject implements Poly {
     @Override
     public Sphere Scale(final double ScaleX, final double ScaleY, final double ScaleZ) {
         return this;
+    }
+
+    @Override
+    public AABB GetBoundingBox() {
+        return bbox;
+    }
+
+    @Override
+    public void GenerateBoundingBox() {
+        Point3D r = new Point3D(radius, radius, radius);
+        Point3D min = centre.subtract(r);
+        Point3D max = centre.add(r);
+        this.bbox = new AABB(min, max);
     }
 
     @Override

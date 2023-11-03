@@ -8,10 +8,10 @@
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.layout.StackPane?>
-<VBox fx:id="box" alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml" minHeight="820" minWidth="1000">
+<VBox fx:id="box" alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml" minHeight="620" minWidth="1000">
         <StackPane>
-                <Text fx:id="mousePos" translateY="-390">Placeholder</Text>
-                <Canvas fx:id="canvas" translateY="20" height="800" width="1000" >
+                <Text fx:id="mousePos" translateY="-290">Placeholder</Text>
+                <Canvas fx:id="canvas" translateY="20" height="600" width="1000" >
                 </Canvas>
         </StackPane>
 </VBox>
