@@ -19,7 +19,7 @@ public class RayTracer {
         world.addAll(spheres);
 
         List<Triangle> triangles = meshes.stream().flatMap(m -> m.HittableMesh().stream()).toList();
-        triangles = BVH.TriangleListSubdivision(triangles);
+        // triangles = BVH.TriangleListSubdivision(triangles);
 
         List<Hittable> hittables = new ArrayList<>();
         hittables.addAll(triangles);

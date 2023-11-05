@@ -107,7 +107,7 @@ public class Controller {
         });
     }
 
-    private void OutputBitmap(int width, int height, int samples, Color[][] bitmap) {
+    private void OutputBitmap(int width, int height, int samples, Color[][] bitmap, String directory) {
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -117,7 +117,7 @@ public class Controller {
         try {
             String filename = "Render.png";
             if (gui) {
-                filename = String.format("Renders/Render-(%dx%dx%d).png", width, height, samples);
+                filename = String.format("%s(%dx%dx%d).png", directory, width, height, samples);
             }
             File outputFile = new File(filename);
             ImageIO.write(bufferedImage, "png", outputFile);
@@ -153,7 +153,10 @@ public class Controller {
     public void startTracing() throws InterruptedException {
         double uScale = 1;
         double vScale = 1;
-
+        String outputDirectory = String.format("Renders/%d/", System.currentTimeMillis());
+        if (!new File(outputDirectory).mkdirs()) {
+            System.out.println("Failed to create new directory: " + outputDirectory);
+        }
 
         if (WIDTH > HEIGHT) uScale = (double)WIDTH / HEIGHT;
         else if (HEIGHT > WIDTH) vScale = (double)HEIGHT / WIDTH;
@@ -197,7 +200,7 @@ public class Controller {
                 updateCanvas(WIDTH, HEIGHT, bitmap);
             }
             if (s % 100 == 0) {
-                OutputBitmap(WIDTH, HEIGHT, s, bitmap);
+                OutputBitmap(WIDTH, HEIGHT, s, bitmap, outputDirectory);
             }
         }
     }
