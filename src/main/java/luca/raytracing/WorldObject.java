@@ -2,6 +2,7 @@ package luca.raytracing;
 
 import javafx.geometry.Point3D;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,6 +13,8 @@ public abstract class WorldObject {
     WorldObject(Material mat, Point3D pos) {
         this.mat = mat;
         this.pos = pos;
+    }
+    WorldObject() {
     }
     public Material getMat() {
         return mat;
@@ -31,6 +34,15 @@ public abstract class WorldObject {
     }
     public abstract Optional<WorldObject.Collision> Collision(Ray ray);
 
-    public record Collision(Point3D point, Material mat, Point3D normal) {
+    public record Collision(Point3D point, Material mat, Point3D normal, double dist) implements Comparable {
+        Collision() {
+            this(Point3D.ZERO, Material.EMPTY, Point3D.ZERO, 0.0);
+        }
+
+        @Override
+        public int compareTo(Object o) {
+            if (!(o instanceof Collision)) throw new RuntimeException("Object is not of type collision");
+            return Double.compare(this.dist, ((Collision) o).dist);
+        }
     }
 }

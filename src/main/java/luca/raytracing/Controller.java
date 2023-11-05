@@ -43,28 +43,12 @@ public class Controller {
         TRIANGLES
     }
     public Controller(boolean gui) {
-        List<WorldObject> world = new ArrayList<>();
+        List<MeshObject> meshes = new ArrayList<>();
+        List<Sphere> spheres = new ArrayList<>();
         this.gui = gui;
 
         Scene scene = Scene.TRIANGLES;
         switch (scene) {
-            case POLYGONS -> {
-                world.add(new Plane(materials.get("WHITE"), 100, 0, 0, new Point3D(-20, -2, -20)));
-                world.add(new Plane(materials.get("RED"), 100, -Math.PI / 2, 0, new Point3D(-20, -3, 14)));
-                world.add(new Plane(materials.get("BLUE"), 100, 0, -Math.PI / 2, new Point3D(-4, 97, -20)));
-                world.add(new Plane(materials.get("WHITE"), 100, 0, Math.PI / 2, new Point3D(5, -3, -20)));
-                world.add(new Plane(materials.get("WHITE"), 100, Math.PI / 2, 0, new Point3D(-20, 40, -3)));
-                world.add(new Plane(materials.get("WHITE"), 100, Math.PI, 0, new Point3D(-20, 10, 20)));
-
-                world.add(new Cube(materials.get("WHITE-EMITTER"), 3, new Point3D(0, 2, 10), new Point3D(0, Math.PI / 8, 0))); // Mirror Cube
-                world.add(new Cube(materials.get("WHITE"), 1, new Point3D(-3, -1, 5), new Point3D(0, 0, 0)));
-                // world.add(new TriPlane(materials.get("GREEN"), new Point3D(0, 0, 0), new Point3D(1, 4, 6), new Point3D(1, 1, 6), new Point3D(2, 1, 6)));
-                //Cube light = new Cube(materials.get("WHITE-EMITTER"), 1, new Point3D(-2, 3, 4), new Point3D(0, 0, 0));
-                // lights.add(new Light(new Point3D(0, 6, 10), 50.0));
-                // lights.add(new Light(new Point3D(0, 6, 4), 110.0));
-                this.camera = new Camera(new Point3D(1, 3, 1), -10 * Math.PI / 180, 10 * Math.PI / 180, 80 * Math.PI / 180);
-
-            }
             case TRIANGLES -> {
                 double boxHeight = 10;
                 double boxWidth = 15;
@@ -80,28 +64,28 @@ public class Controller {
 
                 // Box
                 TriPlane top = new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), roofBackLeft, roofFrontLeft, roofBackRight, roofFrontRight);
-                world.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorFrontLeft, floorBackLeft, floorFrontRight, floorBackRight)); // Floor
-                world.add(new TriPlane(materials.get("RED"), new Point3D(0, 0, 0), floorFrontLeft, roofFrontLeft, floorBackLeft, roofBackLeft)); // Left
-                world.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorBackLeft, roofBackLeft, floorBackRight, roofBackRight)); // Back
-                world.add(top); // Top
-                world.add(new TriPlane(materials.get("GREEN"), new Point3D(0, 0, 0), floorBackRight, roofBackRight, floorFrontRight, roofFrontRight)); // Right
-                world.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorFrontRight, roofFrontRight, floorFrontLeft, roofFrontLeft)); // Front
+                meshes.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorFrontLeft, floorBackLeft, floorFrontRight, floorBackRight)); // Floor
+                meshes.add(new TriPlane(materials.get("RED"), new Point3D(0, 0, 0), floorFrontLeft, roofFrontLeft, floorBackLeft, roofBackLeft)); // Left
+                meshes.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorBackLeft, roofBackLeft, floorBackRight, roofBackRight)); // Back
+                meshes.add(top); // Top
+                meshes.add(new TriPlane(materials.get("GREEN"), new Point3D(0, 0, 0), floorBackRight, roofBackRight, floorFrontRight, roofFrontRight)); // Right
+                meshes.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorFrontRight, roofFrontRight, floorFrontLeft, roofFrontLeft)); // Front
                 //world.add(new TriPlane(materials.get("WHITE-EMITTER"), new Point3D(0, 0, 0), new Point3D(-boxWidth / 6, boxHeight,  2 * boxDepth / 3)));
 
                 // World Objects
                 TriPlane topLight = top.Scale(0.3, 0, 0.3).Translate(0.0, -0.001, 0.0);
                 topLight.id = "light";
                 topLight.SetMaterial(materials.get("WHITE-EMITTER"));
-                world.add(topLight);
+                meshes.add(topLight);
                 //world.add(new TriCube(materials.get("MIRROR"), 2, new Point3D(-2, 1, 10), new Point3D(0, 0, 0)));
-                world.add(new TriCube(materials.get("WHITE"), 2, new Point3D(-1, 1, 10), new Point3D(0, Math.PI / 8, 0)));
-                world.add(new Sphere(materials.get("DIELECTRIC"), new Point3D(1.3, 0.7, 6), 0.5));
-                world.add(new TriCube(materials.get("MIRROR"), 2, new Point3D(3, 1, 11), new Point3D(0, 0, 0)));
+                meshes.add(new TriCube(materials.get("WHITE"), 2, new Point3D(-1, 1, 10), new Point3D(0, Math.PI / 8, 0)));
+                spheres.add(new Sphere(materials.get("DIELECTRIC"), new Point3D(1.3, 0.7, 6), 0.5));
+                meshes.add(new TriCube(materials.get("MIRROR"), 2, new Point3D(3, 1, 11), new Point3D(0, 0, 0)));
                 // Camera
                 this.camera = new Camera(new Point3D(0, 3, 1), 0 * Math.PI / 180, 0 * Math.PI / 180, 80 * Math.PI / 180);
             }
         }
-        tracer = new RayTracer(world);
+        tracer = new RayTracer(meshes, spheres);
     }
 
     @FXML
@@ -176,7 +160,7 @@ public class Controller {
 
         Color[][] bitmap = initBitmap(HEIGHT, WIDTH);
         // Startup Threads:
-        final int threads = 4;
+        final int threads = 12;
         final Semaphore full = new Semaphore(0);
         final Semaphore empty = new Semaphore(WIDTH);
         final CountDownLatch finished = new CountDownLatch(WIDTH * HEIGHT);

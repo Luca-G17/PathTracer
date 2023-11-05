@@ -4,7 +4,7 @@ import javafx.geometry.Point3D;
 
 import java.util.*;
 
-public class Rectangle implements Poly {
+public class Rectangle {
 
     private final Triangle t1;
     private final Triangle t2;
@@ -47,7 +47,6 @@ public class Rectangle implements Poly {
         centre = total.multiply(1.0 / 4.0);
     }
 
-    @Override
     public List<Point3D> GetPoints() {
         List<Point3D> coords = new ArrayList<>();
         coords.add(t1.Lines().get("p1p2").getP0());
@@ -79,7 +78,6 @@ public class Rectangle implements Poly {
         t2.FlipNormal();
     }
 
-    @Override
     public Optional<Point3D> HitLoc(Ray ray) {
         Optional<Point3D> loc = t1.HitLoc(ray);
         if (loc.isEmpty()) {
@@ -88,26 +86,21 @@ public class Rectangle implements Poly {
         return loc;
     }
 
-    @Override
     public Point3D GetNormal() {
         return t1.GetNormal();
     }
 
-    @Override
     public Rectangle Rotate(MatrixNxM r) {
         return new Rectangle(this.t1.Rotate(r), this.t2.Rotate(r), this.id, this.mat);
     }
-    @Override
     public Rectangle Translate(Point3D t) {
         return new Rectangle(t1.Translate(t), t2.Translate(t), this.id, this.mat);
     }
 
-    @Override
     public boolean RayHit(Point3D col) {
         return t1.RayHit(col) || t2.RayHit(col);
     }
 
-    @Override
     public String getId() {
         return id;
     }
@@ -120,5 +113,9 @@ public class Rectangle implements Poly {
     }
     public void SetId(String id) {
         this.id = id;
+    }
+
+    public List<Triangle> Triangles() {
+        return Arrays.asList(t1, t2);
     }
 }

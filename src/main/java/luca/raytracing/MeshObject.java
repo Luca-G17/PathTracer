@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public abstract class MeshObject extends WorldObject {
-    protected List<Poly> mesh;
+    protected List<Triangle> mesh;
     MeshObject(Material mat, Point3D pos) {
         super(mat, pos);
     }
@@ -22,14 +22,19 @@ public abstract class MeshObject extends WorldObject {
                 Point3D loc = optLoc.get();
                 boolean rayTowardsNormal = ray.getDirection().dotProduct(p.GetNormal()) < 0.0;
                 boolean collisionAfterOrigin = ray.getDirection().dotProduct(loc.subtract(ray.getOrigin())) > 0.0;
+                double dist = VectorMath.Length2(loc.subtract(ray.getOrigin()));
                 if (!ray.IsInsideMesh() && rayTowardsNormal && collisionAfterOrigin) {
-                    cols.add(new WorldObject.Collision(loc, getMat(), p.GetNormal()));
+                    cols.add(new WorldObject.Collision(loc, getMat(), p.GetNormal(), dist));
                 }
                 else if (ray.IsInsideMesh() && !rayTowardsNormal && collisionAfterOrigin) {
-                    cols.add(new WorldObject.Collision(loc, getMat(), p.GetNormal()));
+                    cols.add(new WorldObject.Collision(loc, getMat(), p.GetNormal(), dist));
                 }
             }
         }
-        return cols.stream().min(Comparator.comparingDouble(c -> VectorMath.Length2(c.point().subtract(ray.getOrigin()))));
+        return cols.stream().min(Collision::compareTo);
+    }
+
+    public List<Triangle> HittableMesh() {
+        return mesh;
     }
 }

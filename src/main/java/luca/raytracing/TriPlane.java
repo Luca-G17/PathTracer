@@ -73,6 +73,7 @@ public class TriPlane extends MeshObject {
 
     public void SetMaterial(Material mat) {
         this.setMat(mat);
+        this.mesh.forEach(t -> t.SetMaterial(mat));
     }
 
     private Point3D CentreOfPlane() {

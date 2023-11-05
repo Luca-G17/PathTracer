@@ -6,6 +6,7 @@ import javafx.scene.shape.Mesh;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.stream.Stream;
 
 public class TriCube extends MeshObject {
 
@@ -58,10 +59,12 @@ public class TriCube extends MeshObject {
                 back,
                 right,
                 bottom
-        ));
+        )).stream().flatMap(r -> r.Triangles().stream()).toList();
         Translate(new Point3D(-height / 2, height / 2, -height / 2));
         Rotate(rot);
         Translate(pos);
+
+        this.mesh.forEach(t -> t.id = "CUBE");
     }
 
     private void Rotate(Point3D rot) {

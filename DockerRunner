@@ -1,6 +1,0 @@
-#!/bin/sh
-
-docker build --tag 'path_tracer' .
-docker create --name path_tracer 'path_tracer'
-docker start path_tracer --attach
-docker cp path_tracer:/Render.png ./DockerRenders

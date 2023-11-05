@@ -12,8 +12,19 @@ public class RayTracer {
     // the closest intersection returned
     private final int maxDepth = 50;
     private final List<WorldObject> world;
-    RayTracer(List<WorldObject> world) {
-        this.world = world;
+    private final BVH BVHWorld;
+    RayTracer(List<MeshObject> meshes, List<Sphere> spheres) {
+        this.world = new ArrayList<>();
+        world.addAll(meshes);
+        world.addAll(spheres);
+
+        List<Triangle> triangles = meshes.stream().flatMap(m -> m.HittableMesh().stream()).toList();
+        triangles = BVH.TriangleListSubdivision(triangles);
+
+        List<Hittable> hittables = new ArrayList<>();
+        hittables.addAll(triangles);
+        hittables.addAll(spheres);
+        BVHWorld = new BVH(hittables);
     }
     private Optional<WorldObject.Collision> rayCollision(Ray ray) {
         List<WorldObject.Collision> collisions = new ArrayList<>();
@@ -22,12 +33,15 @@ public class RayTracer {
         }
         return collisions.stream().min(Comparator.comparingDouble(c -> (c.point().subtract(ray.getOrigin())).magnitude()));
     }
+    private Optional<WorldObject.Collision> rayCollisionBVH(Ray ray) {
+        return BVHWorld.Collision(ray);
+    }
     private Point3D vectorMultiply(Point3D v1, Point3D v2) {
         return new Point3D(v1.getX() * v2.getX(), v1.getY() * v2.getY(), v1.getZ() * v2.getZ());
     }
 
     public Point3D traceRayRecursive(Ray ray, int depth) {
-        Optional<WorldObject.Collision> optCol = rayCollision(ray);
+        Optional<WorldObject.Collision> optCol = rayCollisionBVH(ray);
         if (depth > maxDepth) {
             return Point3D.ZERO;
         }

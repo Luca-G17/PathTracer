@@ -15,6 +15,7 @@ public class Sphere extends WorldObject implements Poly, Hittable {
         super(mat, pos);
         this.radius = radius;
         this.centre = pos;
+        GenerateBoundingBox();
     }
 
 
@@ -114,8 +115,22 @@ public class Sphere extends WorldObject implements Poly, Hittable {
         if (optLoc.isPresent()) {
             Point3D loc = optLoc.get();
             Point3D normal = loc.subtract(centre);
-            return Optional.of(new Collision(loc, getMat(), normal));
+
+            boolean rayTowardsNormal = ray.getDirection().dotProduct(normal) < 0.0;
+            boolean collisionAfterOrigin = ray.getDirection().dotProduct(loc.subtract(ray.getOrigin())) > 0.0;
+            double dist = VectorMath.Length2(loc.subtract(ray.getOrigin()));
+            if (!ray.IsInsideMesh() && rayTowardsNormal && collisionAfterOrigin) {
+                return Optional.of(new Collision(loc, getMat(), normal, dist));
+            }
+            else if (ray.IsInsideMesh() && !rayTowardsNormal && collisionAfterOrigin) {
+                return Optional.of(new Collision(loc, getMat(), normal, dist));
+            }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Point3D GetCentre() {
+        return centre;
     }
 }
