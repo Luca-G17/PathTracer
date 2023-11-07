@@ -1,0 +1,16 @@
+#!/bin/sh
+
+REMOTE="LucasPC"
+REMOTE_PATH="~/Documents/HomeStuff/JavaProjects/RayTracing/Renders/*/"
+LOCAL_PATH="./"
+if [ "$1" != "" ]; then
+    REMOTE=$1
+fi
+if [ "$2" != "" ]; then
+    REMOTE=$2
+fi
+if [ "$3" != "" ]; then
+    REMOTE=$3
+fi
+
+scp -r $REMOTE:$REMOTE_PATH $LOCAL_PATH

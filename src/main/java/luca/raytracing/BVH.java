@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class BVH implements Hittable {
     private Hittable left;
@@ -35,11 +36,13 @@ public class BVH implements Hittable {
         if (rightT.size() == 0) {
             left = new HittableList(leftT);
             right = new BVH(rightT);
+            System.out.printf("Root: %d\n", leftT.size());
             return;
         }
         if (leftT.size() == 0) {
             right = new HittableList(rightT);
             left = new BVH(leftT);
+            System.out.printf("Root: %d\n", rightT.size());
             return;
         }
 
@@ -85,11 +88,24 @@ public class BVH implements Hittable {
             Point3D midpoint = longest.getP0().midpoint(longest.getP1());
 
             // May have to sort out winding order
-            Triangle t1 = new Triangle(t.getMat(), midpoint, longest.getP0(), opposing);
-            Triangle t2 = new Triangle(t.getMat(), midpoint, opposing, longest.getP1());
-            List<Triangle> ts = TriangleSubdivision(t1);
-            ts.addAll(TriangleSubdivision(t2));
-            return ts;
+            Point3D normal = t.GetNormal();
+            Point3D t1Norm = (longest.getP0().subtract(midpoint)).crossProduct(opposing.subtract(longest.getP0()));
+            Point3D t2Norm = (midpoint.subtract(opposing).crossProduct(longest.getP1().subtract(midpoint)));
+
+            Triangle t1;
+            Triangle t2;
+            if (t1Norm.dotProduct(normal) > 0)
+                t1 = new Triangle(t.getMat(), midpoint, longest.getP0(), opposing);
+            else
+                t1 = new Triangle(t.getMat(), longest.getP0(), midpoint, opposing);
+            if (t2Norm.dotProduct(normal) > 0)
+                t2 = new Triangle(t.getMat(), opposing, midpoint, longest.getP1());
+            else
+                t2 = new Triangle(t.getMat(), midpoint, opposing, longest.getP1());
+
+            List<Triangle> ts1 = TriangleSubdivision(t1);
+            List<Triangle> ts2 = TriangleSubdivision(t2);
+            return Stream.concat(ts1.stream(), ts2.stream()).toList();
         }
         return List.of(t);
     }

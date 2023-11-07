@@ -131,9 +131,9 @@ public class Triangle implements Poly, Hittable {
             for (int a = 0; a < 3; a++) {
                 double d = VectorMath.P3At(p, a);
                 if (d < VectorMath.P3At(min, a))
-                    min = VectorMath.P3SetAt(p, a, d);
-                else if (d > VectorMath.P3At(max, a))
-                    max = VectorMath.P3SetAt(p, a, d);
+                    min = VectorMath.P3SetAt(min, a, d);
+                if (d > VectorMath.P3At(max, a))
+                    max = VectorMath.P3SetAt(max, a, d);
             }
         }
         this.bbox = new AABB(min, max);
