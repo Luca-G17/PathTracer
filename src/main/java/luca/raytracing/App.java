@@ -12,7 +12,7 @@ import java.io.IOException;
 public class App extends Application {
 
     @Override public void start(Stage stage) throws IOException {
-        Controller controller = new Controller(true);
+        Controller controller = new Controller();
         EventHandler<WindowEvent> windowEventHandler = windowEvent -> new Thread(() -> StartPathTracer(controller)).start();
 
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("MainWindow.fxml"));

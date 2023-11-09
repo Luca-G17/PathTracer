@@ -30,6 +30,9 @@ public class VectorMath {
                 (Math.abs(delta.getX()) < EPSILON) &&
                 (Math.abs(delta.getY()) < EPSILON) &&
                 (Math.abs(delta.getZ()) < EPSILON);
+    }
 
+    public static Point3D Lerp(Point3D p0, Point3D p1, double s) {
+        return p0.add(p1.subtract(p0).multiply(s));
     }
 }

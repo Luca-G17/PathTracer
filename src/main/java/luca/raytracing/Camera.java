@@ -7,7 +7,7 @@ public class Camera {
     private double pitch, yaw;
     private double fov;
     private double fovFactor;
-    private Matrix view;
+    private MatrixNxM view;
     public Camera(Point3D pos, double pitch, double yaw, double fov) {
         this.pos = pos;
         this.pitch = pitch;
@@ -37,7 +37,7 @@ public class Camera {
     public double getFov() { return fov; }
 
     private void updateViewMatrix() {
-        view = Matrix.Rotation(pitch, yaw, 0);
+        view = MatrixNxM.RotationMatrix(pitch, yaw, 0);
         this.fovFactor = 1.0 / Math.tan(fov / 2);
     }
     public Ray transformRay(double u, double v) {

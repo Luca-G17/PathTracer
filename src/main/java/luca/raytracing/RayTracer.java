@@ -1,16 +1,18 @@
 package luca.raytracing;
 
 import javafx.geometry.Point3D;
-import javafx.geometry.Pos;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 public class RayTracer {
     // Collisions:
     // Compute intersection point between plane and ray
     // Compute if ray intersects inside polygon
     // the closest intersection returned
-    private final int maxDepth = 50;
+    private final int maxDepth = 20;
     private final List<WorldObject> world;
     private final BVH BVHWorld;
     RayTracer(List<MeshObject> meshes, List<Sphere> spheres) {
@@ -19,7 +21,7 @@ public class RayTracer {
         world.addAll(spheres);
 
         List<Triangle> triangles = meshes.stream().flatMap(m -> m.HittableMesh().stream()).toList();
-        triangles = BVH.TriangleListSubdivision(triangles);
+        // triangles = BVH.TriangleListSubdivision(triangles);
 
         List<Hittable> hittables = new ArrayList<>();
         hittables.addAll(triangles);

@@ -1,6 +1,7 @@
 package luca.raytracing;
 
 import javafx.geometry.Point3D;
+import javafx.geometry.Pos;
 
 import java.util.Optional;
 
@@ -70,11 +71,15 @@ public class AABB extends WorldObject {
         // if axis = y = 1
         // we want the area in the x-y plane 0,1
         // if axis = z = 2
-        // we want the area in the y-z plane 1,2
+        // we want the area in the x-z plane 1,2
     }
 
     public double LargestArea() {
-        return Math.max(Math.max(AreaInAxis(0), AreaInAxis(1)), AreaInAxis(2));
+        // Down
+        double down = axis(0).size() * axis(2).size();
+        double in = axis(0).size() * axis(1).size();
+        double right = axis(1).size() * axis(2).size();
+        return Math.max(Math.max(down, in), right);
     }
 
     public static class Interval {

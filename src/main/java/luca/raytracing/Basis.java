@@ -2,8 +2,10 @@ package luca.raytracing;
 
 import javafx.geometry.Point3D;
 
+import java.util.List;
+
 public class Basis {
-    private Matrix transform;
+    private MatrixNxM transform;
 
     Basis(Point3D normal) {
         Point3D tangent;
@@ -14,13 +16,21 @@ public class Basis {
             tangent = new Point3D(normal.getZ(), 0, -normal.getX());
         }
         Point3D bitangent = tangent.crossProduct(normal);
-        transform = new Matrix(tangent.normalize(), normal.normalize(), bitangent.normalize());
+        transform = new MatrixNxM(tangent.normalize(), normal.normalize(), bitangent.normalize());
     }
     Basis(Point3D normal, Point3D tangent, Point3D bitangent) {
-        transform = new Matrix(tangent, normal, bitangent);
+        transform = new MatrixNxM(tangent, normal, bitangent);
     }
-    public Matrix getTransform() { return transform; }
-    public Point3D getTangent() { return transform.getU(); }
-    public Point3D getNormal() { return transform.getV(); }
-    public Point3D getBitangent() { return transform.getW(); }
+    public MatrixNxM getTransform() {
+        return transform;
+    }
+    public Point3D getTangent() {
+        return MatrixNxM.ListToPoint3D(transform.GetCol(0));
+    }
+    public Point3D getNormal() {
+        return MatrixNxM.ListToPoint3D(transform.GetCol(1));
+    }
+    public Point3D getBitangent() {
+        return MatrixNxM.ListToPoint3D(transform.GetCol(2));
+    }
 }

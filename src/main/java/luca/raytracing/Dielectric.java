@@ -39,7 +39,7 @@ public class Dielectric implements Material {
 
         // boolean cannotRefract = refractionRatio * sinTheta > 1.0;
         if (SchlickReflectance(cosTheta) > random.nextDouble()) {
-            return new PostCollision(Mirror.reflect(outgoing, basis), false);
+            return new PostCollision(Lambertian.SpecularReflect(outgoing, basis), false);
         } else {
             Point3D outPerpendicular = (incoming.add(normal.multiply(cosTheta))).multiply(refractionRatio);
             Point3D outParallel = normal.multiply(-Math.sqrt(Math.abs(1.0 - outPerpendicular.dotProduct(outPerpendicular))));

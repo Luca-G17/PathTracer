@@ -16,6 +16,14 @@ public class MatrixNxM {
         this.n = cols.size();
         PopulateRows();
     }
+    public MatrixNxM(Point3D c0, Point3D c1, Point3D c2) {
+        this.n = 3;
+        this.cols = new ArrayList<>();
+        cols.add(Point3DtoList(c0));
+        cols.add(Point3DtoList(c1));
+        cols.add(Point3DtoList(c2));
+        PopulateRows();
+    }
     private void PopulateRows() {
         rows = new ArrayList<>();
         for (int i = 0; i < cols.get(0).size(); i++) {

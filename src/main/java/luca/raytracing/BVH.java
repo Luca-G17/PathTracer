@@ -14,7 +14,7 @@ public class BVH implements Hittable {
     private AABB bbox;
     private List<Hittable> primitives;
     private static final int SAH_BUCKETS = 12;
-    private static final double MAX_TRIANGLE_AREA = 50;
+    private static final double MAX_TRIANGLE_AREA = 100;
     public BVH(List<Hittable> primitives) {
         this.primitives = primitives;
         GenerateBoundingBox();
@@ -24,7 +24,8 @@ public class BVH implements Hittable {
         int axis = 0;
         if (span.getY() > span.getX()) axis = 1;
         if (span.getZ() > VectorMath.P3At(span, axis)) axis = 2;
-        double split = SAHSplit(axis);
+        // double split = SAHSplit(axis);
+        double split = VectorMath.P3At(span, axis) * 0.5f + bbox.axis(axis).min;
         List<Hittable> leftT = new ArrayList<>();
         List<Hittable> rightT = new ArrayList<>();
         for (Hittable t : primitives) {
@@ -116,11 +117,11 @@ public class BVH implements Hittable {
         int[] bucketCounts = new int[SAH_BUCKETS];
         AABB[] buckets = new AABB[SAH_BUCKETS];
         for (int i = 0; i < SAH_BUCKETS; i++) buckets[i] = new AABB();
-        for (int i = 0; i < primitives.size(); i++) {
-            int b = (int) Math.floor((VectorMath.P3At(primitives.get(i).GetCentre(), axis) - bbox.axis(axis).min) / VectorMath.P3At(span, axis) * SAH_BUCKETS) - 1;
+        for (Hittable primitive : primitives) {
+            int b = (int) Math.floor((VectorMath.P3At(primitive.GetCentre(), axis) - bbox.axis(axis).min) / VectorMath.P3At(span, axis) * SAH_BUCKETS) - 1;
             if (b == -1) b++;
             bucketCounts[b]++;
-            buckets[b] = new AABB(buckets[b], primitives.get(i).GetBoundingBox());
+            buckets[b] = new AABB(buckets[b], primitive.GetBoundingBox());
         }
         double[] costs = new double[SAH_BUCKETS - 1];
         for (int i = 0; i < SAH_BUCKETS - 1; i++) {

@@ -20,9 +20,9 @@ public class Ray {
         return directionInv;
     }
 
-    public Ray transform(Matrix transform, Point3D translate) {
-        Point3D p0 = transform.MultiplyPoint3D(origin).add(translate);
-        Point3D p1 = transform.MultiplyPoint3D(origin.add(direction)).add(translate);
+    public Ray transform(MatrixNxM transform, Point3D translate) {
+        Point3D p0 = transform.Multiply(origin).add(translate);
+        Point3D p1 = transform.Multiply(origin.add(direction)).add(translate);
         return new Ray(p0, p1.subtract(p0), insideMesh);
     }
     public boolean IsInsideMesh() {

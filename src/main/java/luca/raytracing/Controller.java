@@ -24,67 +24,76 @@ public class Controller {
     private final int HEIGHT = 600;
     private final int WIDTH = 1000;
     private final int SAMPLES = 10000;
-    private final boolean gui;
     @FXML public Canvas canvas;
     @FXML public Text mousePos;
     @FXML public VBox box;
 
-    private static Map<String, Material> materials = Map.of(
-            "WHITE", new Lambertian(new Point3D(1.0f, 1.0f, 1.0f), 0.75f),
-            "RED", new Lambertian(new Point3D(1.0f, 0.0f, 0.0f), 0.75f),
-            "GREEN", new Lambertian(new Point3D(0.0f, 1.0f, 0.0f), 0.75f),
-            "BLUE", new Lambertian(new Point3D(0.0f, 0.0f, 1.0f), 0.75f),
-            "MIRROR", new Mirror(new Point3D(1f, 1f, 1f), Point3D.ZERO),
-            "WHITE-EMITTER", new Lambertian(new Point3D(1.0f, 1.0f, 1.0f), new Point3D(8.0f, 8.0f, 8.0f)),
-            "DIELECTRIC", new Dielectric(1.2)
-    );
-    enum Scene {
-        POLYGONS,
-        TRIANGLES
+    private static final Map<String, Material> materials;
+    static {
+        Random rand = new Random(System.nanoTime());
+        materials = new HashMap<>();
+        materials.put("WHITE", new Lambertian(new Point3D(1.0f, 1.0f, 1.0f), 0.75f, 0.0f, rand));
+        materials.put("RED", new Lambertian(new Point3D(1.0f, 0.0f, 0.0f), 0.75f, 0.0f, rand));
+        materials.put("GREEN", new Lambertian(new Point3D(0.0f, 1.0f, 0.0f), 0.75f, 0.0f, rand));
+        materials.put("BLUE", new Lambertian(new Point3D(0.0f, 0.0f, 1.0f), 0.75f, 0.0f, rand));
+        materials.put("MIRROR", new Mirror(new Point3D(1f, 1f, 1f), Point3D.ZERO));
+        materials.put("WHITE-EMITTER", new Lambertian(new Point3D(1.0f, 1.0f, 1.0f), new Point3D(8.0f, 8.0f, 8.0f), 0.0f, rand));
+        materials.put("DIELECTRIC", new Dielectric(1.2));
+        materials.put("WHITE-25", new Lambertian(new Point3D(1.0f, 1.0f, 1.0f), 0.75f, 0.25f, rand));
+        materials.put("WHITE-50", new Lambertian(new Point3D(1.0f, 1.0f, 1.0f), 0.75f, 0.50f, rand));
+        materials.put("WHITE-75", new Lambertian(new Point3D(1.0f, 1.0f, 1.0f), 0.75f, 0.75f, rand));
+        materials.put("WHITE-100", new Lambertian(new Point3D(1.0f, 1.0f, 1.0f), 0.75f, 1.0f, rand));
     }
-    public Controller(boolean gui) {
+    enum Scene {
+        MATERIALS,
+        SMOOTHNESS
+    }
+    public Controller() {
         List<MeshObject> meshes = new ArrayList<>();
         List<Sphere> spheres = new ArrayList<>();
-        this.gui = gui;
 
-        Scene scene = Scene.TRIANGLES;
+        Scene scene = Scene.SMOOTHNESS;
+
+        double boxHeight = 10;
+        double boxWidth = 15;
+        double boxDepth = 15;
+        Point3D floorBackLeft = new Point3D(-boxWidth / 2, -2, boxDepth);
+        Point3D floorBackRight = new Point3D(boxWidth / 2, -2, boxDepth);
+        Point3D floorFrontLeft = new Point3D(-boxWidth / 2, -2, 0);
+        Point3D floorFrontRight = new Point3D(boxWidth / 2, -2, 0);
+        Point3D roofBackLeft = floorBackLeft.add(new Point3D(0, boxHeight, 0));
+        Point3D roofBackRight = floorBackRight.add(new Point3D(0, boxHeight, 0));
+        Point3D roofFrontLeft = floorFrontLeft.add(new Point3D(0, boxHeight, 0));
+        Point3D roofFrontRight = floorFrontRight.add(new Point3D(0, boxHeight, 0));
+
+        // Box
+        TriPlane top = new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), roofBackLeft, roofFrontLeft, roofBackRight, roofFrontRight);
+        meshes.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorFrontLeft, floorBackLeft, floorFrontRight, floorBackRight)); // Floor
+        meshes.add(new TriPlane(materials.get("RED"), new Point3D(0, 0, 0), floorFrontLeft, roofFrontLeft, floorBackLeft, roofBackLeft)); // Left
+        meshes.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorBackLeft, roofBackLeft, floorBackRight, roofBackRight)); // Back
+        meshes.add(top); // Top
+        meshes.add(new TriPlane(materials.get("GREEN"), new Point3D(0, 0, 0), floorBackRight, roofBackRight, floorFrontRight, roofFrontRight)); // Right
+        meshes.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorFrontRight, roofFrontRight, floorFrontLeft, roofFrontLeft)); // Front
+        TriPlane topLight = top.Scale(0.3, 0, 0.3).Translate(0.0, -0.001, 0.0);
+        topLight.id = "light";
+        topLight.SetMaterial(materials.get("WHITE-EMITTER"));
+        meshes.add(topLight);
+
         switch (scene) {
-            case TRIANGLES -> {
-                double boxHeight = 10;
-                double boxWidth = 15;
-                double boxDepth = 15;
-                Point3D floorBackLeft = new Point3D(-boxWidth / 2, -2, boxDepth);
-                Point3D floorBackRight = new Point3D(boxWidth / 2, -2, boxDepth);
-                Point3D floorFrontLeft = new Point3D(-boxWidth / 2, -2, 0);
-                Point3D floorFrontRight = new Point3D(boxWidth / 2, -2, 0);
-                Point3D roofBackLeft = floorBackLeft.add(new Point3D(0, boxHeight, 0));
-                Point3D roofBackRight = floorBackRight.add(new Point3D(0, boxHeight, 0));
-                Point3D roofFrontLeft = floorFrontLeft.add(new Point3D(0, boxHeight, 0));
-                Point3D roofFrontRight = floorFrontRight.add(new Point3D(0, boxHeight, 0));
-
-                // Box
-                TriPlane top = new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), roofBackLeft, roofFrontLeft, roofBackRight, roofFrontRight);
-                meshes.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorFrontLeft, floorBackLeft, floorFrontRight, floorBackRight)); // Floor
-                meshes.add(new TriPlane(materials.get("RED"), new Point3D(0, 0, 0), floorFrontLeft, roofFrontLeft, floorBackLeft, roofBackLeft)); // Left
-                meshes.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorBackLeft, roofBackLeft, floorBackRight, roofBackRight)); // Back
-                meshes.add(top); // Top
-                meshes.add(new TriPlane(materials.get("GREEN"), new Point3D(0, 0, 0), floorBackRight, roofBackRight, floorFrontRight, roofFrontRight)); // Right
-                meshes.add(new TriPlane(materials.get("WHITE"), new Point3D(0, 0, 0), floorFrontRight, roofFrontRight, floorFrontLeft, roofFrontLeft)); // Front
-                //world.add(new TriPlane(materials.get("WHITE-EMITTER"), new Point3D(0, 0, 0), new Point3D(-boxWidth / 6, boxHeight,  2 * boxDepth / 3)));
-
-                // World Objects
-                TriPlane topLight = top.Scale(0.3, 0, 0.3).Translate(0.0, -0.001, 0.0);
-                topLight.id = "light";
-                topLight.SetMaterial(materials.get("WHITE-EMITTER"));
-                meshes.add(topLight);
-                //world.add(new TriCube(materials.get("MIRROR"), 2, new Point3D(-2, 1, 10), new Point3D(0, 0, 0)));
+            case MATERIALS -> {
                 meshes.add(new TriCube(materials.get("WHITE"), 2, new Point3D(-1, 1, 10), new Point3D(0, Math.PI / 8, 0)));
                 spheres.add(new Sphere(materials.get("DIELECTRIC"), new Point3D(1.3, 0.7, 6), 0.5));
                 meshes.add(new TriCube(materials.get("MIRROR"), 2, new Point3D(3, 1, 11), new Point3D(0, 0, 0)));
-                // Camera
-                this.camera = new Camera(new Point3D(0, 3, 1), 0 * Math.PI / 180, 0 * Math.PI / 180, 80 * Math.PI / 180);
+            }
+            case SMOOTHNESS -> {
+                spheres.add(new Sphere(materials.get("WHITE"), new Point3D(-4.4, 2, 6), 1));
+                spheres.add(new Sphere(materials.get("WHITE-25"), new Point3D(-2.2, 2, 6), 1));
+                spheres.add(new Sphere(materials.get("WHITE-50"), new Point3D(0, 2, 6), 1));
+                spheres.add(new Sphere(materials.get("WHITE-75"), new Point3D(2.2, 2, 6), 1));
+                spheres.add(new Sphere(materials.get("WHITE-100"), new Point3D(4.4, 2, 6), 1));
             }
         }
+        this.camera = new Camera(new Point3D(0, 3, 1), 0 * Math.PI / 180, 0 * Math.PI / 180, 80 * Math.PI / 180);
         tracer = new RayTracer(meshes, spheres);
     }
 
@@ -115,10 +124,7 @@ public class Controller {
             }
         }
         try {
-            String filename = "Render.png";
-            if (gui) {
-                filename = String.format("%s(%dx%dx%d).png", directory, width, height, samples);
-            }
+            String filename = String.format("%s(%dx%dx%d).png", directory, width, height, samples);
             File outputFile = new File(filename);
             ImageIO.write(bufferedImage, "png", outputFile);
             System.out.printf("Image written to %s\n", filename);
@@ -196,7 +202,7 @@ public class Controller {
             long averageSampleDuration = ((delta * s) + (end - start)) / (s + 1);
             delta = end - start;
             System.out.printf("Samples Rendered: %d/%d -- Average Duration: %ds\r", s + 1, SAMPLES, averageSampleDuration / 1000);
-            if (s % 1 == 0 && gui) {
+            if (s % 1 == 0) {
                 updateCanvas(WIDTH, HEIGHT, bitmap);
             }
             if (s % 100 == 0) {
