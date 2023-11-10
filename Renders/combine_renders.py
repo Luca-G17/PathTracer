@@ -15,7 +15,7 @@ def combine_max_renders(paths):
     weights = np.array([int(m.split("x")[2].split(")")[0]) for m in maxs])
     average = np.sum(ims * weights[:,np.newaxis,np.newaxis,np.newaxis], axis=0) / np.sum(weights)
     print(f"Total Samples: {np.sum(weights)}")
-    cv2.imwrite("+".join(renders) + "(1).png", average)
+    cv2.imwrite("CompleteRenders/" + "+".join(renders) + "(1).png", average)
 
 # Folder names of renders
 Renders = ["Render1", "1699185455504"]

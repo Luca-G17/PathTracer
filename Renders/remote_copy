@@ -1,7 +1,7 @@
 #!/bin/sh
 
 REMOTE="LucasPC"
-REMOTE_PATH="$HOME/Documents/HomeStuff/JavaProjects/RayTracing/Renders/*/"
+REMOTE_PATH="~/Documents/HomeStuff/JavaProjects/RayTracing/Renders/*/"
 LOCAL_PATH="./"
 if [ "$1" != "" ]; then
     REMOTE=$1
